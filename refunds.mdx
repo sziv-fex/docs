@@ -1,0 +1,37 @@
+# Refunds & Cancellations
+
+## ❌ Cancel Payment
+
+```
+POST /payment-intents/{id}/cancel
+```
+
+* Only works for `pending` payments
+
+---
+
+## 💸 Refund Payment
+
+```
+POST /payment-intents/{id}/refund
+```
+
+* Only works for `completed` payments
+
+---
+
+## 📦 Response
+
+```json
+{
+  "status": "refunded",
+  "refund_status": "initiated"
+}
+```
+
+---
+
+## ⚠️ Notes
+
+* Refunds return funds to customer wallet
+* Cannot refund twice (409 error) 
