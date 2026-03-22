@@ -19,6 +19,24 @@
               "index",
               "getting-started"
             ]
+          },
+          {
+            "group": "Technical guide",
+            "pages": [
+              "accept-payments",
+              "webhooks",
+              "refunds",
+              "testing",
+              "transactions",
+              "counters",
+              "errors"
+            ]
+          },
+          {
+            "group": "Tech 2",
+            "pages": [
+              "fex-integration-guide"
+            ]
           }
         ]
       },
