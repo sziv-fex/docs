@@ -1,0 +1,67 @@
+# Webhooks
+
+FEX sends webhooks when payment state changes.
+
+## 📡 Example Payload
+
+```json
+{
+  "event": "payment.completed",
+  "payment_intent_id": "pi_xxxx",
+  "amount": 29.99,
+  "status": "completed"
+}
+```
+
+---
+
+## 🔁 Events
+
+| Event             | Description           |
+| ----------------- | --------------------- |
+| payment.completed | Payment successful    |
+| payment.expired   | Payment not completed |
+| payment.refunded  | Refund issued         |
+
+---
+
+## 🔐 Verify Signature
+
+Header:
+
+```
+X-Webhook-Signature
+```
+
+### Node.js Example
+
+```javascript
+crypto.createHmac('sha256', secret)
+```
+
+### Python Example
+
+```python
+hmac.new(secret.encode(), body, hashlib.sha256)
+```
+
+---
+
+## ⚠️ Important
+
+* Always verify signature
+* Use **constant-time comparison**
+* Retry-safe (idempotent handling)
+
+---
+
+## 🔁 Retries
+
+* Up to 5 attempts
+* Exponential backoff 
+
+---
+
+## ✅ Best Practice
+
+Only mark payment as complete after webhook.
