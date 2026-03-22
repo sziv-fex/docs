@@ -1,0 +1,106 @@
+# Accept Payments
+
+FEX supports two main payment flows.
+
+## 🧩 Payment Methods
+
+| Flow        | Initiated by | Best for     |
+| ----------- | ------------ | ------------ |
+| Standard QR | Merchant     | POS / Web    |
+| Reverse QR  | Customer     | POS scanning |
+
+---
+
+## 🔵 Standard QR Flow (Recommended)
+
+### How it works:
+
+1. Create payment intent
+2. Display QR code
+3. Customer scans
+4. Customer confirms
+5. Receive webhook 
+
+---
+
+### Create Payment Intent
+
+```
+POST /merchant/api/v1/payment-intents
+```
+
+```json
+{
+  "amount": 29.99,
+  "currency": "USD",
+  "description": "Coffee x2",
+  "reference": "ORDER-1042"
+}
+```
+
+---
+
+### Response
+
+```json
+{
+  "payment_intent": {
+    "id": "pi_xxxx",
+    "qr_code_url": "data:image/png;base64,...",
+    "status": "pending"
+  }
+}
+```
+
+---
+
+### Display QR Code
+
+```html
+<img src="qr_code_url" />
+```
+
+---
+
+## 🟢 Reverse QR Flow (Counter Scan)
+
+### How it works:
+
+1. Customer shows QR
+2. POS scans QR
+3. Merchant sends payment request
+4. Customer receives push
+5. Customer approves
+6. Webhook confirms payment 
+
+---
+
+### Initiate Scan Payment
+
+```
+POST /merchant/api/v1/scan-payment
+```
+
+```json
+{
+  "scan_token": "...",
+  "counter_id": "ctr_xxxx",
+  "amount": 49.50
+}
+```
+
+---
+
+## 🧠 When to Use Each
+
+| Scenario     | Flow        |
+| ------------ | ----------- |
+| POS display  | Standard QR |
+| POS scanner  | Reverse QR  |
+| Web checkout | Standard QR |
+
+---
+
+## ⚡ Next Step
+
+👉 Implement **Webhooks**
