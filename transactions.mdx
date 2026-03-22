@@ -1,0 +1,31 @@
+# Transaction History
+
+## Get Transactions
+
+```
+GET /merchant/api/v1/transactions
+```
+
+---
+
+## Example Response
+
+```json
+{
+  "transactions": [
+    {
+      "id": "ltx_xxxx",
+      "type": "payment",
+      "amount": 29.99
+    }
+  ]
+}
+```
+
+---
+
+## Use Cases
+
+* Reporting
+* Reconciliation
+* Customer support
