@@ -63,7 +63,7 @@
     ]
   },
   "logo": {
-    "light": "/logo/light.svg",
+    "light": "/logo/logo.jpeg",
     "dark": "/logo/dark.svg"
   },
   "navbar": {
@@ -98,4 +98,5 @@
       "linkedin": "https://linkedin.com/company/mintlify"
     }
   }
+
 }
