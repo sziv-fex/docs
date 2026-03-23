@@ -16,7 +16,7 @@
           {
             "group": "Getting started",
             "pages": [
-              "index",
+              "Introduction",
               "getting-started"
             ]
           },
@@ -26,10 +26,10 @@
               "accept-payments",
               "webhooks",
               "refunds",
-              "testing",
               "transactions",
               "counters",
-              "errors"
+              "errors",
+              "testing"
             ]
           },
           {

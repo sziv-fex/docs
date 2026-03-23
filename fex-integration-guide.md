@@ -25,105 +25,144 @@
 The FEX Payment Platform supports two payment flows. Choose the one that fits your checkout experience:
 
 | Flow | Initiated by | How it works |
-|------|-------------|--------------|
+| --- | --- | --- |
 | **Standard QR** | Merchant / POS terminal | Terminal generates a QR code; customer scans it with their wallet app |
-| **Reverse QR** | POS terminal (counter scan) | Customer shows their wallet QR; terminal scans it and sends a push approval to the customer |
+| **Reverse QR** | POS terminal (counter scan) | The customer shows their wallet QR; the terminal scans it and sends a push approval to the customer |
 
 <br />
 
-<!-- DIAGRAM: Payment Flow Comparison -->
+{/*  DIAGRAM: Payment Flow Comparison  */}
+
 <p align="center">
-<svg width="100%" viewBox="0 0 680 300" xmlns="http://www.w3.org/2000/svg">
-  <defs>
-    <marker id="arr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
-      <path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-    </marker>
-  </defs>
+  <svg width="100%" viewBox="0 0 680 300" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <marker id="arr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+        <path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+      </marker>
+    </defs>
 
-  {/* LEFT: Standard QR */}
-  <text x="170" y="30" text-anchor="middle" font-family="system-ui,sans-serif" font-size="13" font-weight="600" fill="#1a1a1a">Standard QR</text>
+    {/* LEFT: Standard QR */}
 
-  {/* POS Terminal box */}
-  <rect x="40" y="50" width="120" height="44" rx="8" fill="#EEF2FF" stroke="#6366F1" stroke-width="1"/>
-  <text x="100" y="68" text-anchor="middle" font-family="system-ui,sans-serif" font-size="12" font-weight="600" fill="#3730A3">POS Terminal</text>
-  <text x="100" y="83" text-anchor="middle" font-family="system-ui,sans-serif" font-size="11" fill="#4338CA">Generates QR</text>
+    <text x="170" y="30" text-anchor="middle" font-family="system-ui,sans-serif" font-size="13" font-weight="600" fill="#1a1a1a">Standard QR</text>
 
-  {/* Arrow down */}
-  <line x1="100" y1="94" x2="100" y2="138" stroke="#6366F1" stroke-width="1.5" marker-end="url(#arr)"/>
-  <text x="110" y="120" font-family="system-ui,sans-serif" font-size="10" fill="#6366F1">displays</text>
+    {/* POS Terminal box */}
 
-  {/* QR Code icon */}
-  <rect x="72" y="140" width="56" height="56" rx="6" fill="#F5F5F5" stroke="#CBD5E1" stroke-width="1"/>
-  <rect x="80" y="148" width="18" height="18" rx="2" fill="#1a1a1a"/>
-  <rect x="104" y="148" width="16" height="8" rx="1" fill="#1a1a1a"/>
-  <rect x="104" y="160" width="16" height="6" rx="1" fill="#1a1a1a"/>
-  <rect x="80" y="172" width="18" height="12" rx="1" fill="#1a1a1a"/>
-  <rect x="104" y="170" width="6" height="18" rx="1" fill="#1a1a1a"/>
-  <rect x="114" y="170" width="6" height="18" rx="1" fill="#1a1a1a"/>
+    <rect x="40" y="50" width="120" height="44" rx="8" fill="#EEF2FF" stroke="#6366F1" stroke-width="1" />
 
-  {/* Arrow right */}
-  <line x1="130" y1="168" x2="200" y2="168" stroke="#6366F1" stroke-width="1.5" marker-end="url(#arr)"/>
-  <text x="165" y="162" text-anchor="middle" font-family="system-ui,sans-serif" font-size="10" fill="#6366F1">scans</text>
+    <text x="100" y="68" text-anchor="middle" font-family="system-ui,sans-serif" font-size="12" font-weight="600" fill="#3730A3">POS Terminal</text>
+    <text x="100" y="83" text-anchor="middle" font-family="system-ui,sans-serif" font-size="11" fill="#4338CA">Generates QR</text>
 
-  {/* Customer box */}
-  <rect x="200" y="148" width="110" height="44" rx="8" fill="#F0FDF4" stroke="#22C55E" stroke-width="1"/>
-  <text x="255" y="166" text-anchor="middle" font-family="system-ui,sans-serif" font-size="12" font-weight="600" fill="#166534">Customer</text>
-  <text x="255" y="181" text-anchor="middle" font-family="system-ui,sans-serif" font-size="11" fill="#15803D">Wallet app</text>
+    {/* Arrow down */}
 
-  {/* Arrow up to success */}
-  <line x1="255" y1="148" x2="255" y2="104" stroke="#22C55E" stroke-width="1.5" marker-end="url(#arr)"/>
-  <text x="268" y="130" font-family="system-ui,sans-serif" font-size="10" fill="#22C55E">confirms</text>
+    <line x1="100" y1="94" x2="100" y2="138" stroke="#6366F1" stroke-width="1.5" marker-end="url(#arr)" />
 
-  {/* Success badge */}
-  <rect x="190" y="58" width="130" height="44" rx="8" fill="#F0FDF4" stroke="#22C55E" stroke-width="1.5"/>
-  <text x="255" y="76" text-anchor="middle" font-family="system-ui,sans-serif" font-size="12" font-weight="600" fill="#166534">Payment Complete</text>
-  <text x="255" y="91" text-anchor="middle" font-family="system-ui,sans-serif" font-size="11" fill="#15803D">Webhook fired</text>
+    <text x="110" y="120" font-family="system-ui,sans-serif" font-size="10" fill="#6366F1">displays</text>
 
-  {/* divider */}
-  <line x1="340" y1="40" x2="340" y2="270" stroke="#E2E8F0" stroke-width="1" stroke-dasharray="4 4"/>
+    {/* QR Code icon */}
 
-  {/* RIGHT: Reverse QR */}
-  <text x="510" y="30" text-anchor="middle" font-family="system-ui,sans-serif" font-size="13" font-weight="600" fill="#1a1a1a">Reverse QR</text>
+    <rect x="72" y="140" width="56" height="56" rx="6" fill="#F5F5F5" stroke="#CBD5E1" stroke-width="1" />
 
-  {/* Customer shows QR */}
-  <rect x="360" y="50" width="120" height="44" rx="8" fill="#F0FDF4" stroke="#22C55E" stroke-width="1"/>
-  <text x="420" y="68" text-anchor="middle" font-family="system-ui,sans-serif" font-size="12" font-weight="600" fill="#166534">Customer</text>
-  <text x="420" y="83" text-anchor="middle" font-family="system-ui,sans-serif" font-size="11" fill="#15803D">Shows wallet QR</text>
+    <rect x="80" y="148" width="18" height="18" rx="2" fill="#1a1a1a" />
 
-  {/* Arrow right (scan) */}
-  <line x1="480" y1="72" x2="538" y2="72" stroke="#6366F1" stroke-width="1.5" marker-end="url(#arr)"/>
-  <text x="509" y="65" text-anchor="middle" font-family="system-ui,sans-serif" font-size="10" fill="#6366F1">scans</text>
+    <rect x="104" y="148" width="16" height="8" rx="1" fill="#1a1a1a" />
 
-  {/* POS Terminal (right) */}
-  <rect x="540" y="50" width="110" height="44" rx="8" fill="#EEF2FF" stroke="#6366F1" stroke-width="1"/>
-  <text x="595" y="68" text-anchor="middle" font-family="system-ui,sans-serif" font-size="12" font-weight="600" fill="#3730A3">POS Terminal</text>
-  <text x="595" y="83" text-anchor="middle" font-family="system-ui,sans-serif" font-size="11" fill="#4338CA">Sends intent</text>
+    <rect x="104" y="160" width="16" height="6" rx="1" fill="#1a1a1a" />
 
-  {/* Arrow down from POS to API */}
-  <line x1="595" y1="94" x2="595" y2="138" stroke="#6366F1" stroke-width="1.5" marker-end="url(#arr)"/>
+    <rect x="80" y="172" width="18" height="12" rx="1" fill="#1a1a1a" />
 
-  {/* FEX API */}
-  <rect x="530" y="140" width="130" height="44" rx="8" fill="#FFF7ED" stroke="#F97316" stroke-width="1"/>
-  <text x="595" y="158" text-anchor="middle" font-family="system-ui,sans-serif" font-size="12" font-weight="600" fill="#9A3412">FEX API</text>
-  <text x="595" y="173" text-anchor="middle" font-family="system-ui,sans-serif" font-size="11" fill="#C2410C">Push notification</text>
+    <rect x="104" y="170" width="6" height="18" rx="1" fill="#1a1a1a" />
 
-  {/* Arrow left back to customer (approval) */}
-  <line x1="530" y1="162" x2="488" y2="162" stroke="#F97316" stroke-width="1.5" marker-end="url(#arr)"/>
-  <text x="509" y="155" text-anchor="middle" font-family="system-ui,sans-serif" font-size="10" fill="#F97316">approve</text>
+    <rect x="114" y="170" width="6" height="18" rx="1" fill="#1a1a1a" />
 
-  {/* Customer approves */}
-  <rect x="360" y="140" width="126" height="44" rx="8" fill="#F0FDF4" stroke="#22C55E" stroke-width="1"/>
-  <text x="423" y="158" text-anchor="middle" font-family="system-ui,sans-serif" font-size="12" font-weight="600" fill="#166534">Customer</text>
-  <text x="423" y="173" text-anchor="middle" font-family="system-ui,sans-serif" font-size="11" fill="#15803D">Taps approve</text>
+    {/* Arrow right */}
 
-  {/* Arrow down to success */}
-  <line x1="595" y1="184" x2="595" y2="228" stroke="#22C55E" stroke-width="1.5" marker-end="url(#arr)"/>
+    <line x1="130" y1="168" x2="200" y2="168" stroke="#6366F1" stroke-width="1.5" marker-end="url(#arr)" />
 
-  {/* Success badge right */}
-  <rect x="486" y="230" width="218" height="44" rx="8" fill="#F0FDF4" stroke="#22C55E" stroke-width="1.5"/>
-  <text x="595" y="248" text-anchor="middle" font-family="system-ui,sans-serif" font-size="12" font-weight="600" fill="#166534">Payment Complete</text>
-  <text x="595" y="263" text-anchor="middle" font-family="system-ui,sans-serif" font-size="11" fill="#15803D">Webhook fired to POS</text>
-</svg>
+    <text x="165" y="162" text-anchor="middle" font-family="system-ui,sans-serif" font-size="10" fill="#6366F1">scans</text>
+
+    {/* Customer box */}
+
+    <rect x="200" y="148" width="110" height="44" rx="8" fill="#F0FDF4" stroke="#22C55E" stroke-width="1" />
+
+    <text x="255" y="166" text-anchor="middle" font-family="system-ui,sans-serif" font-size="12" font-weight="600" fill="#166534">Customer</text>
+    <text x="255" y="181" text-anchor="middle" font-family="system-ui,sans-serif" font-size="11" fill="#15803D">Wallet app</text>
+
+    {/* Arrow up to success */}
+
+    <line x1="255" y1="148" x2="255" y2="104" stroke="#22C55E" stroke-width="1.5" marker-end="url(#arr)" />
+
+    <text x="268" y="130" font-family="system-ui,sans-serif" font-size="10" fill="#22C55E">confirms</text>
+
+    {/* Success badge */}
+
+    <rect x="190" y="58" width="130" height="44" rx="8" fill="#F0FDF4" stroke="#22C55E" stroke-width="1.5" />
+
+    <text x="255" y="76" text-anchor="middle" font-family="system-ui,sans-serif" font-size="12" font-weight="600" fill="#166534">Payment Complete</text>
+    <text x="255" y="91" text-anchor="middle" font-family="system-ui,sans-serif" font-size="11" fill="#15803D">Webhook fired</text>
+
+    {/* divider */}
+
+    <line x1="340" y1="40" x2="340" y2="270" stroke="#E2E8F0" stroke-width="1" stroke-dasharray="4 4" />
+
+    {/* RIGHT: Reverse QR */}
+
+    <text x="510" y="30" text-anchor="middle" font-family="system-ui,sans-serif" font-size="13" font-weight="600" fill="#1a1a1a">Reverse QR</text>
+
+    {/* Customer shows QR */}
+
+    <rect x="360" y="50" width="120" height="44" rx="8" fill="#F0FDF4" stroke="#22C55E" stroke-width="1" />
+
+    <text x="420" y="68" text-anchor="middle" font-family="system-ui,sans-serif" font-size="12" font-weight="600" fill="#166534">Customer</text>
+    <text x="420" y="83" text-anchor="middle" font-family="system-ui,sans-serif" font-size="11" fill="#15803D">Shows wallet QR</text>
+
+    {/* Arrow right (scan) */}
+
+    <line x1="480" y1="72" x2="538" y2="72" stroke="#6366F1" stroke-width="1.5" marker-end="url(#arr)" />
+
+    <text x="509" y="65" text-anchor="middle" font-family="system-ui,sans-serif" font-size="10" fill="#6366F1">scans</text>
+
+    {/* POS Terminal (right) */}
+
+    <rect x="540" y="50" width="110" height="44" rx="8" fill="#EEF2FF" stroke="#6366F1" stroke-width="1" />
+
+    <text x="595" y="68" text-anchor="middle" font-family="system-ui,sans-serif" font-size="12" font-weight="600" fill="#3730A3">POS Terminal</text>
+    <text x="595" y="83" text-anchor="middle" font-family="system-ui,sans-serif" font-size="11" fill="#4338CA">Sends intent</text>
+
+    {/* Arrow down from POS to API */}
+
+    <line x1="595" y1="94" x2="595" y2="138" stroke="#6366F1" stroke-width="1.5" marker-end="url(#arr)" />
+
+    {/* FEX API */}
+
+    <rect x="530" y="140" width="130" height="44" rx="8" fill="#FFF7ED" stroke="#F97316" stroke-width="1" />
+
+    <text x="595" y="158" text-anchor="middle" font-family="system-ui,sans-serif" font-size="12" font-weight="600" fill="#9A3412">FEX API</text>
+    <text x="595" y="173" text-anchor="middle" font-family="system-ui,sans-serif" font-size="11" fill="#C2410C">Push notification</text>
+
+    {/* Arrow left back to customer (approval) */}
+
+    <line x1="530" y1="162" x2="488" y2="162" stroke="#F97316" stroke-width="1.5" marker-end="url(#arr)" />
+
+    <text x="509" y="155" text-anchor="middle" font-family="system-ui,sans-serif" font-size="10" fill="#F97316">approve</text>
+
+    {/* Customer approves */}
+
+    <rect x="360" y="140" width="126" height="44" rx="8" fill="#F0FDF4" stroke="#22C55E" stroke-width="1" />
+
+    <text x="423" y="158" text-anchor="middle" font-family="system-ui,sans-serif" font-size="12" font-weight="600" fill="#166534">Customer</text>
+    <text x="423" y="173" text-anchor="middle" font-family="system-ui,sans-serif" font-size="11" fill="#15803D">Taps approve</text>
+
+    {/* Arrow down to success */}
+
+    <line x1="595" y1="184" x2="595" y2="228" stroke="#22C55E" stroke-width="1.5" marker-end="url(#arr)" />
+
+    {/* Success badge right */}
+
+    <rect x="486" y="230" width="218" height="44" rx="8" fill="#F0FDF4" stroke="#22C55E" stroke-width="1.5" />
+
+    <text x="595" y="248" text-anchor="middle" font-family="system-ui,sans-serif" font-size="12" font-weight="600" fill="#166534">Payment Complete</text>
+    <text x="595" y="263" text-anchor="middle" font-family="system-ui,sans-serif" font-size="11" fill="#15803D">Webhook fired to POS</text>
+  </svg>
 </p>
 
 ---
@@ -185,49 +224,65 @@ if token is None or token_expires_at < now() + 30s:
 
 <br />
 
-<!-- DIAGRAM: Token Flow -->
+{/*  DIAGRAM: Token Flow  */}
+
 <p align="center">
-<svg width="100%" viewBox="0 0 680 160" xmlns="http://www.w3.org/2000/svg">
-  <defs>
-    <marker id="arr2" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
-      <path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-    </marker>
-  </defs>
+  <svg width="100%" viewBox="0 0 680 160" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <marker id="arr2" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+        <path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+      </marker>
+    </defs>
 
-  {/* POS Backend */}
-  <rect x="40" y="58" width="130" height="44" rx="8" fill="#EEF2FF" stroke="#6366F1" stroke-width="1"/>
-  <text x="105" y="76" text-anchor="middle" font-family="system-ui,sans-serif" font-size="12" font-weight="600" fill="#3730A3">POS Backend</text>
-  <text x="105" y="91" text-anchor="middle" font-family="system-ui,sans-serif" font-size="11" fill="#4338CA">Your server</text>
+    {/* POS Backend */}
 
-  {/* Arrow to Auth */}
-  <line x1="170" y1="80" x2="232" y2="80" stroke="#6366F1" stroke-width="1.5" marker-end="url(#arr2)"/>
-  <text x="201" y="72" text-anchor="middle" font-family="system-ui,sans-serif" font-size="10" fill="#6366F1">credentials</text>
+    <rect x="40" y="58" width="130" height="44" rx="8" fill="#EEF2FF" stroke="#6366F1" stroke-width="1" />
 
-  {/* Auth Server */}
-  <rect x="234" y="58" width="130" height="44" rx="8" fill="#FFF7ED" stroke="#F97316" stroke-width="1"/>
-  <text x="299" y="76" text-anchor="middle" font-family="system-ui,sans-serif" font-size="12" font-weight="600" fill="#9A3412">Auth Server</text>
-  <text x="299" y="91" text-anchor="middle" font-family="system-ui,sans-serif" font-size="11" fill="#C2410C">Keycloak / OAuth2</text>
+    <text x="105" y="76" text-anchor="middle" font-family="system-ui,sans-serif" font-size="12" font-weight="600" fill="#3730A3">POS Backend</text>
+    <text x="105" y="91" text-anchor="middle" font-family="system-ui,sans-serif" font-size="11" fill="#4338CA">Your server</text>
 
-  {/* Arrow back (token) */}
-  <line x1="363" y1="80" x2="425" y2="80" stroke="#22C55E" stroke-width="1.5" marker-end="url(#arr2)"/>
-  <text x="394" y="72" text-anchor="middle" font-family="system-ui,sans-serif" font-size="10" fill="#22C55E">access token</text>
+    {/* Arrow to Auth */}
 
-  {/* Token cache */}
-  <rect x="428" y="58" width="130" height="44" rx="8" fill="#F0FDF4" stroke="#22C55E" stroke-width="1"/>
-  <text x="493" y="76" text-anchor="middle" font-family="system-ui,sans-serif" font-size="12" font-weight="600" fill="#166534">POS Backend</text>
-  <text x="493" y="91" text-anchor="middle" font-family="system-ui,sans-serif" font-size="11" fill="#15803D">Caches token</text>
+    <line x1="170" y1="80" x2="232" y2="80" stroke="#6366F1" stroke-width="1.5" marker-end="url(#arr2)" />
 
-  {/* Arrow to FEX API */}
-  <line x1="558" y1="80" x2="618" y2="80" stroke="#6366F1" stroke-width="1.5" marker-end="url(#arr2)"/>
-  <text x="588" y="72" text-anchor="middle" font-family="system-ui,sans-serif" font-size="10" fill="#6366F1">API calls</text>
+    <text x="201" y="72" text-anchor="middle" font-family="system-ui,sans-serif" font-size="10" fill="#6366F1">credentials</text>
 
-  {/* FEX API */}
-  <rect x="620" y="58" width="40" height="44" rx="8" fill="#F8FAFC" stroke="#CBD5E1" stroke-width="1"/>
-  <text x="640" y="84" text-anchor="middle" font-family="system-ui,sans-serif" font-size="10" font-weight="600" fill="#475569">FEX</text>
+    {/* Auth Server */}
 
-  {/* Expiry note */}
-  <text x="340" y="130" text-anchor="middle" font-family="system-ui,sans-serif" font-size="11" fill="#94A3B8">Token valid for 5 minutes — refresh at least 30 s before expiry</text>
-</svg>
+    <rect x="234" y="58" width="130" height="44" rx="8" fill="#FFF7ED" stroke="#F97316" stroke-width="1" />
+
+    <text x="299" y="76" text-anchor="middle" font-family="system-ui,sans-serif" font-size="12" font-weight="600" fill="#9A3412">Auth Server</text>
+    <text x="299" y="91" text-anchor="middle" font-family="system-ui,sans-serif" font-size="11" fill="#C2410C">Keycloak / OAuth2</text>
+
+    {/* Arrow back (token) */}
+
+    <line x1="363" y1="80" x2="425" y2="80" stroke="#22C55E" stroke-width="1.5" marker-end="url(#arr2)" />
+
+    <text x="394" y="72" text-anchor="middle" font-family="system-ui,sans-serif" font-size="10" fill="#22C55E">access token</text>
+
+    {/* Token cache */}
+
+    <rect x="428" y="58" width="130" height="44" rx="8" fill="#F0FDF4" stroke="#22C55E" stroke-width="1" />
+
+    <text x="493" y="76" text-anchor="middle" font-family="system-ui,sans-serif" font-size="12" font-weight="600" fill="#166534">POS Backend</text>
+    <text x="493" y="91" text-anchor="middle" font-family="system-ui,sans-serif" font-size="11" fill="#15803D">Caches token</text>
+
+    {/* Arrow to FEX API */}
+
+    <line x1="558" y1="80" x2="618" y2="80" stroke="#6366F1" stroke-width="1.5" marker-end="url(#arr2)" />
+
+    <text x="588" y="72" text-anchor="middle" font-family="system-ui,sans-serif" font-size="10" fill="#6366F1">API calls</text>
+
+    {/* FEX API */}
+
+    <rect x="620" y="58" width="40" height="44" rx="8" fill="#F8FAFC" stroke="#CBD5E1" stroke-width="1" />
+
+    <text x="640" y="84" text-anchor="middle" font-family="system-ui,sans-serif" font-size="10" font-weight="600" fill="#475569">FEX</text>
+
+    {/* Expiry note */}
+
+    <text x="340" y="130" text-anchor="middle" font-family="system-ui,sans-serif" font-size="11" fill="#94A3B8">Token valid for 5 minutes — refresh at least 30 s before expiry</text>
+  </svg>
 </p>
 
 ---
@@ -238,72 +293,97 @@ The POS terminal creates a payment intent, displays the resulting QR code, and w
 
 <br />
 
-<!-- DIAGRAM: Standard QR Sequence -->
+{/*  DIAGRAM: Standard QR Sequence  */}
+
 <p align="center">
-<svg width="100%" viewBox="0 0 680 380" xmlns="http://www.w3.org/2000/svg">
-  <defs>
-    <marker id="arr3" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
-      <path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-    </marker>
-  </defs>
+  <svg width="100%" viewBox="0 0 680 380" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <marker id="arr3" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+        <path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+      </marker>
+    </defs>
 
-  {/* Swimlane headers */}
-  <rect x="40" y="20" width="130" height="36" rx="6" fill="#EEF2FF" stroke="#6366F1" stroke-width="1"/>
-  <text x="105" y="42" text-anchor="middle" font-family="system-ui,sans-serif" font-size="12" font-weight="600" fill="#3730A3">POS Terminal</text>
+    {/* Swimlane headers */}
 
-  <rect x="270" y="20" width="130" height="36" rx="6" fill="#FFF7ED" stroke="#F97316" stroke-width="1"/>
-  <text x="335" y="42" text-anchor="middle" font-family="system-ui,sans-serif" font-size="12" font-weight="600" fill="#9A3412">FEX API</text>
+    <rect x="40" y="20" width="130" height="36" rx="6" fill="#EEF2FF" stroke="#6366F1" stroke-width="1" />
 
-  <rect x="500" y="20" width="140" height="36" rx="6" fill="#F0FDF4" stroke="#22C55E" stroke-width="1"/>
-  <text x="570" y="42" text-anchor="middle" font-family="system-ui,sans-serif" font-size="12" font-weight="600" fill="#166534">Customer Wallet</text>
+    <text x="105" y="42" text-anchor="middle" font-family="system-ui,sans-serif" font-size="12" font-weight="600" fill="#3730A3">POS Terminal</text>
 
-  {/* Lifelines */}
-  <line x1="105" y1="56" x2="105" y2="360" stroke="#CBD5E1" stroke-width="1" stroke-dasharray="4 4"/>
-  <line x1="335" y1="56" x2="335" y2="360" stroke="#CBD5E1" stroke-width="1" stroke-dasharray="4 4"/>
-  <line x1="570" y1="56" x2="570" y2="360" stroke="#CBD5E1" stroke-width="1" stroke-dasharray="4 4"/>
+    <rect x="270" y="20" width="130" height="36" rx="6" fill="#FFF7ED" stroke="#F97316" stroke-width="1" />
 
-  {/* Step 1: POS → API */}
-  <line x1="105" y1="90" x2="328" y2="90" stroke="#6366F1" stroke-width="1.5" marker-end="url(#arr3)"/>
-  <text x="216" y="83" text-anchor="middle" font-family="system-ui,sans-serif" font-size="10" fill="#6366F1">POST /payment-intents</text>
+    <text x="335" y="42" text-anchor="middle" font-family="system-ui,sans-serif" font-size="12" font-weight="600" fill="#9A3412">FEX API</text>
 
-  {/* Step 2: API → POS (response) */}
-  <line x1="335" y1="120" x2="112" y2="120" stroke="#F97316" stroke-width="1.5" stroke-dasharray="5 3" marker-end="url(#arr3)"/>
-  <text x="224" y="113" text-anchor="middle" font-family="system-ui,sans-serif" font-size="10" fill="#F97316">201 { qr_code_url, qr_data }</text>
+    <rect x="500" y="20" width="140" height="36" rx="6" fill="#F0FDF4" stroke="#22C55E" stroke-width="1" />
 
-  {/* Step 3: POS displays */}
-  <rect x="56" y="140" width="98" height="28" rx="6" fill="#EEF2FF" stroke="#6366F1" stroke-width="0.5"/>
-  <text x="105" y="158" text-anchor="middle" font-family="system-ui,sans-serif" font-size="10" fill="#3730A3">Display QR code</text>
+    <text x="570" y="42" text-anchor="middle" font-family="system-ui,sans-serif" font-size="12" font-weight="600" fill="#166534">Customer Wallet</text>
 
-  {/* Step 4: Customer scans */}
-  <line x1="570" y1="188" x2="342" y2="188" stroke="#22C55E" stroke-width="1.5" marker-end="url(#arr3)"/>
-  <text x="456" y="181" text-anchor="middle" font-family="system-ui,sans-serif" font-size="10" fill="#22C55E">Scan QR (GET /payment-intents/{id})</text>
+    {/* Lifelines */}
 
-  {/* Step 5: Customer confirms */}
-  <rect x="520" y="208" width="100" height="28" rx="6" fill="#F0FDF4" stroke="#22C55E" stroke-width="0.5"/>
-  <text x="570" y="226" text-anchor="middle" font-family="system-ui,sans-serif" font-size="10" fill="#166534">Tap Confirm</text>
+    <line x1="105" y1="56" x2="105" y2="360" stroke="#CBD5E1" stroke-width="1" stroke-dasharray="4 4" />
 
-  {/* Step 6: API → POS webhook */}
-  <line x1="335" y1="258" x2="112" y2="258" stroke="#F97316" stroke-width="1.5" stroke-dasharray="5 3" marker-end="url(#arr3)"/>
-  <text x="224" y="250" text-anchor="middle" font-family="system-ui,sans-serif" font-size="10" fill="#F97316">Webhook: payment.completed</text>
+    <line x1="335" y1="56" x2="335" y2="360" stroke="#CBD5E1" stroke-width="1" stroke-dasharray="4 4" />
 
-  {/* Step 7: Success */}
-  <rect x="56" y="276" width="98" height="28" rx="6" fill="#F0FDF4" stroke="#22C55E" stroke-width="0.5"/>
-  <text x="105" y="294" text-anchor="middle" font-family="system-ui,sans-serif" font-size="10" fill="#166534">Show success</text>
+    <line x1="570" y1="56" x2="570" y2="360" stroke="#CBD5E1" stroke-width="1" stroke-dasharray="4 4" />
 
-  {/* Step labels */}
-  <text x="28" y="93" font-family="system-ui,sans-serif" font-size="9" fill="#94A3B8">①</text>
-  <text x="28" y="123" font-family="system-ui,sans-serif" font-size="9" fill="#94A3B8">②</text>
-  <text x="28" y="157" font-family="system-ui,sans-serif" font-size="9" fill="#94A3B8">③</text>
-  <text x="28" y="191" font-family="system-ui,sans-serif" font-size="9" fill="#94A3B8">④</text>
-  <text x="28" y="225" font-family="system-ui,sans-serif" font-size="9" fill="#94A3B8">⑤</text>
-  <text x="28" y="261" font-family="system-ui,sans-serif" font-size="9" fill="#94A3B8">⑥</text>
-  <text x="28" y="292" font-family="system-ui,sans-serif" font-size="9" fill="#94A3B8">⑦</text>
+    {/* Step 1: POS → API */}
 
-  {/* Poll note */}
-  <rect x="56" y="315" width="260" height="30" rx="6" fill="#F8FAFC" stroke="#E2E8F0" stroke-width="1"/>
-  <text x="186" y="330" text-anchor="middle" font-family="system-ui,sans-serif" font-size="10" fill="#64748B">Optional: Poll GET /payment-intents/{id} every 2–3 s</text>
-  <text x="186" y="340" text-anchor="middle" font-family="system-ui,sans-serif" font-size="10" fill="#64748B">as a fallback alongside webhooks</text>
-</svg>
+    <line x1="105" y1="90" x2="328" y2="90" stroke="#6366F1" stroke-width="1.5" marker-end="url(#arr3)" />
+
+    <text x="216" y="83" text-anchor="middle" font-family="system-ui,sans-serif" font-size="10" fill="#6366F1">POST /payment-intents</text>
+
+    {/* Step 2: API → POS (response) */}
+
+    <line x1="335" y1="120" x2="112" y2="120" stroke="#F97316" stroke-width="1.5" stroke-dasharray="5 3" marker-end="url(#arr3)" />
+
+    <text x="224" y="113" text-anchor="middle" font-family="system-ui,sans-serif" font-size="10" fill="#F97316">201 { qr_code_url, qr_data }</text>
+
+    {/* Step 3: POS displays */}
+
+    <rect x="56" y="140" width="98" height="28" rx="6" fill="#EEF2FF" stroke="#6366F1" stroke-width="0.5" />
+
+    <text x="105" y="158" text-anchor="middle" font-family="system-ui,sans-serif" font-size="10" fill="#3730A3">Display QR code</text>
+
+    {/* Step 4: Customer scans */}
+
+    <line x1="570" y1="188" x2="342" y2="188" stroke="#22C55E" stroke-width="1.5" marker-end="url(#arr3)" />
+
+    <text x="456" y="181" text-anchor="middle" font-family="system-ui,sans-serif" font-size="10" fill="#22C55E">Scan QR (GET /payment-intents/{id})</text>
+
+    {/* Step 5: Customer confirms */}
+
+    <rect x="520" y="208" width="100" height="28" rx="6" fill="#F0FDF4" stroke="#22C55E" stroke-width="0.5" />
+
+    <text x="570" y="226" text-anchor="middle" font-family="system-ui,sans-serif" font-size="10" fill="#166534">Tap Confirm</text>
+
+    {/* Step 6: API → POS webhook */}
+
+    <line x1="335" y1="258" x2="112" y2="258" stroke="#F97316" stroke-width="1.5" stroke-dasharray="5 3" marker-end="url(#arr3)" />
+
+    <text x="224" y="250" text-anchor="middle" font-family="system-ui,sans-serif" font-size="10" fill="#F97316">Webhook: payment.completed</text>
+
+    {/* Step 7: Success */}
+
+    <rect x="56" y="276" width="98" height="28" rx="6" fill="#F0FDF4" stroke="#22C55E" stroke-width="0.5" />
+
+    <text x="105" y="294" text-anchor="middle" font-family="system-ui,sans-serif" font-size="10" fill="#166534">Show success</text>
+
+    {/* Step labels */}
+
+    <text x="28" y="93" font-family="system-ui,sans-serif" font-size="9" fill="#94A3B8">①</text>
+    <text x="28" y="123" font-family="system-ui,sans-serif" font-size="9" fill="#94A3B8">②</text>
+    <text x="28" y="157" font-family="system-ui,sans-serif" font-size="9" fill="#94A3B8">③</text>
+    <text x="28" y="191" font-family="system-ui,sans-serif" font-size="9" fill="#94A3B8">④</text>
+    <text x="28" y="225" font-family="system-ui,sans-serif" font-size="9" fill="#94A3B8">⑤</text>
+    <text x="28" y="261" font-family="system-ui,sans-serif" font-size="9" fill="#94A3B8">⑥</text>
+    <text x="28" y="292" font-family="system-ui,sans-serif" font-size="9" fill="#94A3B8">⑦</text>
+
+    {/* Poll note */}
+
+    <rect x="56" y="315" width="260" height="30" rx="6" fill="#F8FAFC" stroke="#E2E8F0" stroke-width="1" />
+
+    <text x="186" y="330" text-anchor="middle" font-family="system-ui,sans-serif" font-size="10" fill="#64748B">Optional: Poll GET /payment-intents/{id} every 2–3 s</text>
+    <text x="186" y="340" text-anchor="middle" font-family="system-ui,sans-serif" font-size="10" fill="#64748B">as a fallback alongside webhooks</text>
+  </svg>
 </p>
 
 ### Step 1 — Create a Payment Intent
@@ -311,12 +391,14 @@ The POS terminal creates a payment intent, displays the resulting QR code, and w
 **`POST /merchant/api/v1/payment-intents`**
 
 **Headers:**
-```
+
+```text
 Authorization: Bearer {access_token}
 Content-Type: application/json
 ```
 
 **Request body:**
+
 ```json
 {
   "amount": 29.99,
@@ -332,7 +414,7 @@ Content-Type: application/json
 **Request fields:**
 
 | Field | Type | Required | Description |
-|-------|------|:--------:|-------------|
+| --- | --- | :-: | --- |
 | `amount` | float | ✅ | Payment amount (must be positive) |
 | `currency` | string | — | ISO 4217 code. Default: `USD` |
 | `description` | string | — | Shown to customer in their wallet app |
@@ -343,6 +425,7 @@ Content-Type: application/json
 | `metadata` | object | — | Arbitrary key-value pairs, echoed in webhooks |
 
 **Response `201 Created`:**
+
 ```json
 {
   "success": true,
@@ -374,6 +457,7 @@ Content-Type: application/json
 Poll every 2–3 seconds while the QR is displayed. Stop when `status` reaches a terminal state.
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -388,7 +472,7 @@ Poll every 2–3 seconds while the QR is displayed. Stop when `status` reaches a
 **Payment intent statuses:**
 
 | Status | Meaning |
-|--------|---------|
+| --- | --- |
 | `pending` | Waiting for customer to scan and pay |
 | `completed` | Payment received |
 | `cancelled` | Cancelled by merchant |
@@ -405,74 +489,104 @@ The POS terminal scans the **customer's** QR code. The customer receives a push 
 
 <br />
 
-<!-- DIAGRAM: Reverse QR Sequence -->
+{/*  DIAGRAM: Reverse QR Sequence  */}
+
 <p align="center">
-<svg width="100%" viewBox="0 0 680 400" xmlns="http://www.w3.org/2000/svg">
-  <defs>
-    <marker id="arr4" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
-      <path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-    </marker>
-  </defs>
+  <svg width="100%" viewBox="0 0 680 400" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <marker id="arr4" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+        <path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+      </marker>
+    </defs>
 
-  {/* Swimlane headers */}
-  <rect x="10" y="20" width="110" height="36" rx="6" fill="#F0FDF4" stroke="#22C55E" stroke-width="1"/>
-  <text x="65" y="42" text-anchor="middle" font-family="system-ui,sans-serif" font-size="11" font-weight="600" fill="#166534">Customer</text>
+    {/* Swimlane headers */}
 
-  <rect x="200" y="20" width="110" height="36" rx="6" fill="#EEF2FF" stroke="#6366F1" stroke-width="1"/>
-  <text x="255" y="42" text-anchor="middle" font-family="system-ui,sans-serif" font-size="11" font-weight="600" fill="#3730A3">POS Terminal</text>
+    <rect x="10" y="20" width="110" height="36" rx="6" fill="#F0FDF4" stroke="#22C55E" stroke-width="1" />
 
-  <rect x="380" y="20" width="100" height="36" rx="6" fill="#FFF7ED" stroke="#F97316" stroke-width="1"/>
-  <text x="430" y="42" text-anchor="middle" font-family="system-ui,sans-serif" font-size="11" font-weight="600" fill="#9A3412">FEX API</text>
+    <text x="65" y="42" text-anchor="middle" font-family="system-ui,sans-serif" font-size="11" font-weight="600" fill="#166534">Customer</text>
 
-  <rect x="560" y="20" width="110" height="36" rx="6" fill="#F0FDF4" stroke="#22C55E" stroke-width="1"/>
-  <text x="615" y="42" text-anchor="middle" font-family="system-ui,sans-serif" font-size="11" font-weight="600" fill="#166534">Wallet Service</text>
+    <rect x="200" y="20" width="110" height="36" rx="6" fill="#EEF2FF" stroke="#6366F1" stroke-width="1" />
 
-  {/* Lifelines */}
-  <line x1="65"  y1="56" x2="65"  y2="380" stroke="#CBD5E1" stroke-width="1" stroke-dasharray="4 4"/>
-  <line x1="255" y1="56" x2="255" y2="380" stroke="#CBD5E1" stroke-width="1" stroke-dasharray="4 4"/>
-  <line x1="430" y1="56" x2="430" y2="380" stroke="#CBD5E1" stroke-width="1" stroke-dasharray="4 4"/>
-  <line x1="615" y1="56" x2="615" y2="380" stroke="#CBD5E1" stroke-width="1" stroke-dasharray="4 4"/>
+    <text x="255" y="42" text-anchor="middle" font-family="system-ui,sans-serif" font-size="11" font-weight="600" fill="#3730A3">POS Terminal</text>
 
-  {/* Step 1: Customer shows QR */}
-  <line x1="65" y1="90" x2="246" y2="90" stroke="#22C55E" stroke-width="1.5" marker-end="url(#arr4)"/>
-  <text x="155" y="82" text-anchor="middle" font-family="system-ui,sans-serif" font-size="10" fill="#22C55E">Shows wallet QR (scan_token)</text>
+    <rect x="380" y="20" width="100" height="36" rx="6" fill="#FFF7ED" stroke="#F97316" stroke-width="1" />
 
-  {/* Step 2: POS scans */}
-  <rect x="206" y="105" width="98" height="24" rx="5" fill="#EEF2FF" stroke="#6366F1" stroke-width="0.5"/>
-  <text x="255" y="121" text-anchor="middle" font-family="system-ui,sans-serif" font-size="10" fill="#3730A3">Extract scan_token</text>
+    <text x="430" y="42" text-anchor="middle" font-family="system-ui,sans-serif" font-size="11" font-weight="600" fill="#9A3412">FEX API</text>
 
-  {/* Step 3: POS → API */}
-  <line x1="255" y1="148" x2="422" y2="148" stroke="#6366F1" stroke-width="1.5" marker-end="url(#arr4)"/>
-  <text x="338" y="140" text-anchor="middle" font-family="system-ui,sans-serif" font-size="10" fill="#6366F1">POST /scan-payment</text>
+    <rect x="560" y="20" width="110" height="36" rx="6" fill="#F0FDF4" stroke="#22C55E" stroke-width="1" />
 
-  {/* Step 4: API validates */}
-  <rect x="382" y="163" width="96" height="24" rx="5" fill="#FFF7ED" stroke="#F97316" stroke-width="0.5"/>
-  <text x="430" y="179" text-anchor="middle" font-family="system-ui,sans-serif" font-size="10" fill="#9A3412">Validate counter</text>
+    <text x="615" y="42" text-anchor="middle" font-family="system-ui,sans-serif" font-size="11" font-weight="600" fill="#166534">Wallet Service</text>
 
-  {/* Step 5: API → Wallet */}
-  <line x1="430" y1="206" x2="608" y2="206" stroke="#F97316" stroke-width="1.5" marker-end="url(#arr4)"/>
-  <text x="519" y="198" text-anchor="middle" font-family="system-ui,sans-serif" font-size="10" fill="#F97316">payment.approval_requested</text>
+    {/* Lifelines */}
 
-  {/* Step 6: Wallet → Customer push */}
-  <line x1="615" y1="236" x2="74" y2="236" stroke="#22C55E" stroke-width="1.5" stroke-dasharray="5 3" marker-end="url(#arr4)"/>
-  <text x="344" y="228" text-anchor="middle" font-family="system-ui,sans-serif" font-size="10" fill="#22C55E">Push notification</text>
+    <line x1="65" y1="56" x2="65" y2="380" stroke="#CBD5E1" stroke-width="1" stroke-dasharray="4 4" />
 
-  {/* Step 7: Customer approves */}
-  <rect x="16" y="251" width="98" height="24" rx="5" fill="#F0FDF4" stroke="#22C55E" stroke-width="0.5"/>
-  <text x="65" y="267" text-anchor="middle" font-family="system-ui,sans-serif" font-size="10" fill="#166534">Tap Approve</text>
+    <line x1="255" y1="56" x2="255" y2="380" stroke="#CBD5E1" stroke-width="1" stroke-dasharray="4 4" />
 
-  {/* Step 8: Customer → Wallet */}
-  <line x1="65" y1="294" x2="608" y2="294" stroke="#22C55E" stroke-width="1.5" marker-end="url(#arr4)"/>
-  <text x="344" y="286" text-anchor="middle" font-family="system-ui,sans-serif" font-size="10" fill="#22C55E">payment.completed</text>
+    <line x1="430" y1="56" x2="430" y2="380" stroke="#CBD5E1" stroke-width="1" stroke-dasharray="4 4" />
 
-  {/* Step 9: Webhook → POS */}
-  <line x1="430" y1="324" x2="263" y2="324" stroke="#F97316" stroke-width="1.5" stroke-dasharray="5 3" marker-end="url(#arr4)"/>
-  <text x="346" y="316" text-anchor="middle" font-family="system-ui,sans-serif" font-size="10" fill="#F97316">Webhook: payment.completed</text>
+    <line x1="615" y1="56" x2="615" y2="380" stroke="#CBD5E1" stroke-width="1" stroke-dasharray="4 4" />
 
-  {/* Step 10: Success */}
-  <rect x="206" y="340" width="98" height="24" rx="5" fill="#F0FDF4" stroke="#22C55E" stroke-width="0.5"/>
-  <text x="255" y="356" text-anchor="middle" font-family="system-ui,sans-serif" font-size="10" fill="#166534">Show success</text>
-</svg>
+    {/* Step 1: Customer shows QR */}
+
+    <line x1="65" y1="90" x2="246" y2="90" stroke="#22C55E" stroke-width="1.5" marker-end="url(#arr4)" />
+
+    <text x="155" y="82" text-anchor="middle" font-family="system-ui,sans-serif" font-size="10" fill="#22C55E">Shows wallet QR (scan\_token)</text>
+
+    {/* Step 2: POS scans */}
+
+    <rect x="206" y="105" width="98" height="24" rx="5" fill="#EEF2FF" stroke="#6366F1" stroke-width="0.5" />
+
+    <text x="255" y="121" text-anchor="middle" font-family="system-ui,sans-serif" font-size="10" fill="#3730A3">Extract scan\_token</text>
+
+    {/* Step 3: POS → API */}
+
+    <line x1="255" y1="148" x2="422" y2="148" stroke="#6366F1" stroke-width="1.5" marker-end="url(#arr4)" />
+
+    <text x="338" y="140" text-anchor="middle" font-family="system-ui,sans-serif" font-size="10" fill="#6366F1">POST /scan-payment</text>
+
+    {/* Step 4: API validates */}
+
+    <rect x="382" y="163" width="96" height="24" rx="5" fill="#FFF7ED" stroke="#F97316" stroke-width="0.5" />
+
+    <text x="430" y="179" text-anchor="middle" font-family="system-ui,sans-serif" font-size="10" fill="#9A3412">Validate counter</text>
+
+    {/* Step 5: API → Wallet */}
+
+    <line x1="430" y1="206" x2="608" y2="206" stroke="#F97316" stroke-width="1.5" marker-end="url(#arr4)" />
+
+    <text x="519" y="198" text-anchor="middle" font-family="system-ui,sans-serif" font-size="10" fill="#F97316">payment.approval\_requested</text>
+
+    {/* Step 6: Wallet → Customer push */}
+
+    <line x1="615" y1="236" x2="74" y2="236" stroke="#22C55E" stroke-width="1.5" stroke-dasharray="5 3" marker-end="url(#arr4)" />
+
+    <text x="344" y="228" text-anchor="middle" font-family="system-ui,sans-serif" font-size="10" fill="#22C55E">Push notification</text>
+
+    {/* Step 7: Customer approves */}
+
+    <rect x="16" y="251" width="98" height="24" rx="5" fill="#F0FDF4" stroke="#22C55E" stroke-width="0.5" />
+
+    <text x="65" y="267" text-anchor="middle" font-family="system-ui,sans-serif" font-size="10" fill="#166534">Tap Approve</text>
+
+    {/* Step 8: Customer → Wallet */}
+
+    <line x1="65" y1="294" x2="608" y2="294" stroke="#22C55E" stroke-width="1.5" marker-end="url(#arr4)" />
+
+    <text x="344" y="286" text-anchor="middle" font-family="system-ui,sans-serif" font-size="10" fill="#22C55E">payment.completed</text>
+
+    {/* Step 9: Webhook → POS */}
+
+    <line x1="430" y1="324" x2="263" y2="324" stroke="#F97316" stroke-width="1.5" stroke-dasharray="5 3" marker-end="url(#arr4)" />
+
+    <text x="346" y="316" text-anchor="middle" font-family="system-ui,sans-serif" font-size="10" fill="#F97316">Webhook: payment.completed</text>
+
+    {/* Step 10: Success */}
+
+    <rect x="206" y="340" width="98" height="24" rx="5" fill="#F0FDF4" stroke="#22C55E" stroke-width="0.5" />
+
+    <text x="255" y="356" text-anchor="middle" font-family="system-ui,sans-serif" font-size="10" fill="#166534">Show success</text>
+  </svg>
 </p>
 
 ### Prerequisites — Register a Counter (POS Terminal)
@@ -489,6 +603,7 @@ Each physical terminal should be registered once. This enables per-terminal repo
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -527,7 +642,7 @@ Each physical terminal should be registered once. This enables per-terminal repo
 **Request fields:**
 
 | Field | Type | Required | Description |
-|-------|------|:--------:|-------------|
+| --- | --- | :-: | --- |
 | `scan_token` | string | ✅ | Value decoded from the customer's wallet QR |
 | `counter_id` | string | ✅ | ID of the scanning terminal |
 | `amount` | float | ✅ | Charge amount |
@@ -538,6 +653,7 @@ Each physical terminal should be registered once. This enables per-terminal repo
 | `callback_url` | string | — | URL to receive the `payment.completed` webhook |
 
 **Response `201 Created`:**
+
 ```json
 {
   "success": true,
@@ -577,7 +693,7 @@ The platform sends a signed HTTP POST to your `callback_url` whenever a payment 
 ### Webhook Events
 
 | Event | Trigger |
-|-------|---------|
+| --- | --- |
 | `payment.completed` | Customer payment confirmed |
 | `payment.expired` | QR or approval window elapsed without payment |
 | `payment.refunded` | Merchant issued a refund |
@@ -591,6 +707,7 @@ Every webhook delivery includes an `X-Webhook-Signature` header — an **HMAC-SH
 > **Always use constant-time comparison** (`hmac.compare_digest` / `timingSafeEqual`) to prevent timing attacks. Never use a simple string equality check.
 
 **Python:**
+
 ```python
 import hmac, hashlib
 
@@ -604,6 +721,7 @@ def verify_webhook(body: bytes, signature: str, secret: str) -> bool:
 ```
 
 **Node.js:**
+
 ```javascript
 const crypto = require('crypto');
 
@@ -642,6 +760,7 @@ Only intents in `pending` status can be cancelled. Returns `200` on success.
 Only intents in `completed` status can be refunded. The full amount is returned to the customer's wallet.
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -665,6 +784,7 @@ Only intents in `completed` status can be refunded. The full amount is returned 
 Returns paginated ledger transactions for your merchant wallet.
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -692,7 +812,7 @@ Returns paginated ledger transactions for your merchant wallet.
 ## 9. Counter Management
 
 | Action | Method | Endpoint |
-|--------|--------|----------|
+| --- | --- | --- |
 | Create terminal | `POST` | `/merchant/api/v1/counters` |
 | List terminals | `GET` | `/merchant/api/v1/counters` |
 | Get terminal | `GET` | `/merchant/api/v1/counters/{id}` |
@@ -716,7 +836,7 @@ All error responses follow this shape:
 ```
 
 | HTTP Status | Meaning | Common cause |
-|-------------|---------|--------------|
+| --- | --- | --- |
 | `400` | Bad request | Missing or invalid field in request body |
 | `401` | Unauthorized | Missing, expired, or malformed access token |
 | `403` | Forbidden | Token does not have permission for this action |
@@ -734,27 +854,32 @@ All error responses follow this shape:
 Work through this list in order before going live.
 
 **Credentials & Setup**
-- [ ] Received `merchant_id`, `client_id`, and `client_secret` from platform admin
-- [ ] Stored `client_secret` in a secrets manager (not in source code or environment variables)
-- [ ] Tested token generation via the client credentials flow
+
+- Received `merchant_id`, `client_id`, and `client_secret` from platform admin
+- Stored `client_secret` in a secrets manager (not in source code or environment variables)
+- Tested token generation via the client credentials flow
 
 **Terminal Registration**
-- [ ] Created at least one counter (POS terminal) via `POST /merchant/api/v1/counters`
-- [ ] Saved the counter's `webhook_secret` in your secrets manager
+
+- Created at least one counter (POS terminal) via `POST /merchant/api/v1/counters`
+- Saved the counter's `webhook_secret` in your secrets manager
 
 **Backend Integration**
-- [ ] Implemented token refresh logic (refresh at least 30 s before expiry)
-- [ ] Implemented webhook endpoint with HMAC-SHA256 signature verification
-- [ ] Implemented retry/backoff logic for `5xx` responses
+
+- Implemented token refresh logic (refresh at least 30 s before expiry)
+- Implemented webhook endpoint with HMAC-SHA256 signature verification
+- Implemented retry/backoff logic for `5xx` responses
 
 **End-to-End Testing**
-- [ ] Tested Standard QR flow end-to-end in sandbox
-- [ ] Tested Reverse QR flow end-to-end in sandbox
-- [ ] Verified webhook delivery and signature validation
+
+- Tested Standard QR flow end-to-end in sandbox
+- Tested Reverse QR flow end-to-end in sandbox
+- Verified webhook delivery and signature validation
 
 **Go Live**
-- [ ] Contact platform admin to activate your live environment
+
+- Contact platform admin to activate your live environment
 
 ---
 
-*For sandbox access, base URLs, or credential issues, contact your platform administrator.*
+_For sandbox access, base URLs, or credential issues, contact your platform administrator._

@@ -1,6 +1,8 @@
-# Webhooks
+---
+title: "Webhooks"
+---
 
-FEX sends webhooks when payment state changes.
+FEX sends webhooks when the payment state changes.
 
 ## 📡 Example Payload
 
@@ -17,11 +19,11 @@ FEX sends webhooks when payment state changes.
 
 ## 🔁 Events
 
-| Event             | Description           |
-| ----------------- | --------------------- |
-| payment.completed | Payment successful    |
-| payment.expired   | Payment not completed |
-| payment.refunded  | Refund issued         |
+| Event | Description |
+| --- | --- |
+| payment.completed | Payment successful |
+| payment.expired | Payment not completed |
+| payment.refunded | Refund issued |
 
 ---
 
@@ -29,7 +31,7 @@ FEX sends webhooks when payment state changes.
 
 Header:
 
-```
+```text
 X-Webhook-Signature
 ```
 
@@ -49,16 +51,16 @@ hmac.new(secret.encode(), body, hashlib.sha256)
 
 ## ⚠️ Important
 
-* Always verify signature
-* Use **constant-time comparison**
-* Retry-safe (idempotent handling)
+- Always verify signature
+- Use **constant-time comparison**
+- Retry-safe (idempotent handling)
 
 ---
 
 ## 🔁 Retries
 
-* Up to 5 attempts
-* Exponential backoff 
+- Up to 5 attempts
+- Exponential backoff
 
 ---
 

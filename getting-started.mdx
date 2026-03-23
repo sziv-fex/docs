@@ -1,4 +1,6 @@
-# Get Started with FEX Payments
+---
+title: "Get Started with FEX Payments"
+---
 
 Welcome! This guide will help you integrate FEX Payments and process your first transaction.
 
@@ -8,9 +10,9 @@ FEX enables merchants to accept payments directly from customer wallets using QR
 
 You can integrate using:
 
-* POS terminals
-* Backend systems
-* Ecommerce flows 
+- POS terminals
+- Backend systems
+- Ecommerce flows
 
 ---
 
@@ -51,21 +53,21 @@ Tokens expire in **5 minutes**, so implement refresh logic.
 
 Call:
 
-```
+```text
 POST /merchant/api/v1/payment-intents
 ```
 
 You’ll receive:
 
-* `payment_intent.id`
-* `qr_code_url`
+- `payment_intent.id`
+- `qr_code_url`
 
 ---
 
 ### 4. Show Payment to Customer
 
-* Display QR code (Standard flow), or
-* Scan customer QR (Reverse flow)
+- Display QR code (Standard flow), or
+- Scan customer QR (Reverse flow)
 
 ---
 
@@ -73,7 +75,7 @@ You’ll receive:
 
 FEX sends:
 
-```
+```text
 payment.completed
 ```
 
@@ -91,6 +93,6 @@ Start with:
 
 ## 🚀 Next Steps
 
-* Accept Payments →
-* Webhooks →
-* Refunds →
+- Accept Payments →
+- Webhooks →
+- Refunds →

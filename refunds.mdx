@@ -1,22 +1,24 @@
-# Refunds & Cancellations
+---
+title: "Refunds & Cancellations"
+---
 
 ## ❌ Cancel Payment
 
-```
+```text
 POST /payment-intents/{id}/cancel
 ```
 
-* Only works for `pending` payments
+- Only works for `pending` payments
 
 ---
 
 ## 💸 Refund Payment
 
-```
+```text
 POST /payment-intents/{id}/refund
 ```
 
-* Only works for `completed` payments
+- Only works for `completed` payments
 
 ---
 
@@ -33,5 +35,5 @@ POST /payment-intents/{id}/refund
 
 ## ⚠️ Notes
 
-* Refunds return funds to customer wallet
-* Cannot refund twice (409 error) 
+- Refunds return funds to customer wallet
+- Cannot refund twice (409 error)
