@@ -1,0 +1,1044 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Merchant API",
+    "description": "API for merchants to create and manage payment intents, POS counters, and transaction history in the FEX Payment Platform. Authentication uses Keycloak JWT (human merchants via password flow, POS terminals via client credentials).",
+    "version": "1.0.0",
+    "contact": {
+      "name": "FEX Payments Platform"
+    }
+  },
+  "servers": [
+    {
+      "url": "http://api-sandbox.fexpayments.com",
+      "description": "Merchant API sandbox server"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Payment Intents",
+      "description": "Create and manage payment intents"
+    },
+    {
+      "name": "Counters",
+      "description": "POS terminal (counter) management — each counter has its own Keycloak client credentials and webhook endpoint"
+    },
+    {
+      "name": "Admin",
+      "description": "Back-office endpoints restricted to platform admin role (`admin`)"
+    },
+    {
+      "name": "Public",
+      "description": "Public endpoints accessible without authentication (for QR code payments)"
+    },
+    {
+      "name": "Onboarding",
+      "description": "Merchant registration — requires platform admin JWT (realm role `admin`)"
+    }
+  ],
+  "paths": {
+    "/merchant/api/v1/register": {
+      "post": {
+        "tags": ["Onboarding"],
+        "summary": "Register a new merchant",
+        "description": "Creates a merchant account and provisions a Keycloak `client_credentials` client. Returns `client_id` and `client_secret` — **the secret is shown only once**. POS terminals authenticate using these credentials via Keycloak's token endpoint. **Requires platform admin JWT** (realm role `admin`).",
+        "security": [{ "BearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/RegisterMerchantRequest" },
+              "example": { "email": "shop@example.com", "business_name": "My Shop" }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Merchant registered — store client_secret securely",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/RegisterResult" },
+                "example": {
+                  "success": true,
+                  "merchant_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+                  "client_id": "merchant-a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+                  "client_secret": "s3cr3t-shown-once",
+                  "note": "Store client_secret securely — it will not be shown again."
+                }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/BadRequest" },
+          "500": { "$ref": "#/components/responses/InternalError" }
+        }
+      }
+    },
+    "/merchant/health": {
+      "get": {
+        "summary": "Health check",
+        "description": "Check if the service is running and healthy",
+        "responses": {
+          "200": {
+            "description": "Service is healthy",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": { "type": "string", "example": "healthy" },
+                    "service": { "type": "string", "example": "merchant-api" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/merchant/api/v1/payment-intents": {
+      "post": {
+        "tags": ["Payment Intents"],
+        "summary": "Create payment intent",
+        "description": "Create a new payment intent with QR code for customer to scan and pay. `merchant_id` is taken from the JWT. POS terminals have a `counter_id` claim which will be associated with the intent.",
+        "security": [{ "BearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CreatePaymentIntentRequest" },
+              "examples": {
+                "basic": {
+                  "summary": "Basic payment",
+                  "value": { "amount": 99.99, "currency": "USD", "description": "Coffee and pastry" }
+                },
+                "posTerminal": {
+                  "summary": "POS terminal payment with counter",
+                  "value": { "amount": 45.00, "currency": "USD", "description": "Lunch", "counter_id": "c1d2e3f4-a5b6-7890-abcd-ef1234567890", "reference": "TXN-001" }
+                },
+                "ecommerce": {
+                  "summary": "Ecommerce order with per-intent callback",
+                  "value": { "amount": 250.50, "currency": "USD", "description": "Online order #12345", "reference": "ORD-12345", "callback_url": "https://shop.example.com/orders/ORD-12345/payment-callback", "metadata": { "customer_email": "alice@example.com", "cart_id": "cart-abc123" } }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Payment intent created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": { "type": "boolean", "example": true },
+                    "payment_intent": { "$ref": "#/components/schemas/PaymentIntent" }
+                  }
+                }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/BadRequest" },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "500": { "$ref": "#/components/responses/InternalError" }
+        }
+      },
+      "get": {
+        "tags": ["Payment Intents"],
+        "summary": "List payment intents",
+        "description": "Get a paginated list of payment intents for the authenticated merchant. `merchant_id` is taken from the JWT.",
+        "security": [{ "BearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Page number (default: 1)",
+            "schema": { "type": "integer", "minimum": 1, "default": 1 }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Number of items per page (default: 20, max: 100)",
+            "schema": { "type": "integer", "minimum": 1, "maximum": 100, "default": 20 }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of payment intents",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": { "type": "boolean", "example": true },
+                    "payment_intents": {
+                      "type": "array",
+                      "items": { "$ref": "#/components/schemas/PaymentIntent" }
+                    },
+                    "page": { "type": "integer", "example": 1 },
+                    "limit": { "type": "integer", "example": 20 }
+                  }
+                }
+              }
+            }
+          },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "500": { "$ref": "#/components/responses/InternalError" }
+        }
+      }
+    },
+    "/merchant/api/v1/payment-intents/{intentID}": {
+      "get": {
+        "tags": ["Payment Intents"],
+        "summary": "Get payment intent",
+        "description": "Get details of a specific payment intent (merchant view). Only returns intents belonging to the authenticated merchant.",
+        "security": [{ "BearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "intentID",
+            "in": "path",
+            "required": true,
+            "description": "Payment intent ID",
+            "schema": { "type": "string", "format": "uuid" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Payment intent details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": { "type": "boolean", "example": true },
+                    "payment_intent": { "$ref": "#/components/schemas/PaymentIntent" }
+                  }
+                }
+              }
+            }
+          },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "404": { "$ref": "#/components/responses/NotFound" }
+        }
+      }
+    },
+    "/merchant/api/v1/payment-intents/{intentID}/refund": {
+      "post": {
+        "tags": ["Payment Intents"],
+        "summary": "Refund payment",
+        "description": "Issue a full refund for a completed payment intent. Only the merchant that received the payment can call this. The refund is published to the ledger as a `refund` transaction (debit merchant wallet, credit user wallet). Balance sync is asynchronous — the user's wallet balance updates within seconds via the `wallet.balance.updated` NATS event. A refund can only be issued once per payment intent.",
+        "security": [{ "BearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "intentID",
+            "in": "path",
+            "required": true,
+            "description": "Payment intent ID to refund",
+            "schema": { "type": "string", "format": "uuid" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Refund initiated successfully",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/RefundResponse" }
+              }
+            }
+          },
+          "400": {
+            "description": "Payment intent is not in a refundable state (not completed)",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorResponse" },
+                "example": { "success": false, "error": "only completed payments can be refunded" }
+              }
+            }
+          },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "404": { "$ref": "#/components/responses/NotFound" },
+          "409": {
+            "description": "Conflict — refund already issued for this payment",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorResponse" },
+                "example": { "success": false, "error": "refund already issued for this payment" }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable — payment has no associated user wallet to refund",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorResponse" },
+                "example": { "success": false, "error": "payment has no associated user wallet to refund" }
+              }
+            }
+          },
+          "500": { "$ref": "#/components/responses/InternalError" }
+        }
+      }
+    },
+    "/merchant/api/v1/payment-intents/{intentID}/cancel": {
+      "post": {
+        "tags": ["Payment Intents"],
+        "summary": "Cancel payment intent",
+        "description": "Cancel a pending payment intent. Only pending payments can be cancelled.",
+        "security": [{ "BearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "intentID",
+            "in": "path",
+            "required": true,
+            "description": "Payment intent ID",
+            "schema": { "type": "string", "format": "uuid" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Payment intent cancelled successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": { "type": "boolean", "example": true },
+                    "message": { "type": "string", "example": "Payment intent cancelled successfully" }
+                  }
+                }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/BadRequest" },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "404": { "$ref": "#/components/responses/NotFound" }
+        }
+      }
+    },
+    "/merchant/api/v1/counters": {
+      "post": {
+        "tags": ["Counters"],
+        "summary": "Create counter (POS terminal)",
+        "description": "Create a new POS counter for the authenticated merchant. Returns Keycloak client credentials (`client_id` / `client_secret`) and a `webhook_secret` for HMAC signing — **these are shown only once, store them securely**. The counter's `client_id` can be used to obtain a machine token via Keycloak client credentials flow.",
+        "security": [{ "BearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CreateCounterRequest" },
+              "example": {
+                "name": "Counter 1",
+                "location": "Floor 2, Register 3",
+                "webhook_url": "https://pos.example.com/webhooks/payments"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Counter created. Save `client_secret` and `webhook_secret` immediately — they cannot be retrieved again.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/CreateCounterResponse" }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/BadRequest" },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "500": { "$ref": "#/components/responses/InternalError" }
+        }
+      },
+      "get": {
+        "tags": ["Counters"],
+        "summary": "List counters",
+        "description": "List all counters (POS terminals) for the authenticated merchant.",
+        "security": [{ "BearerAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "List of counters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": { "type": "boolean", "example": true },
+                    "counters": {
+                      "type": "array",
+                      "items": { "$ref": "#/components/schemas/Counter" }
+                    },
+                    "total": { "type": "integer", "example": 3 }
+                  }
+                }
+              }
+            }
+          },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "500": { "$ref": "#/components/responses/InternalError" }
+        }
+      }
+    },
+    "/merchant/api/v1/counters/{counterID}": {
+      "get": {
+        "tags": ["Counters"],
+        "summary": "Get counter",
+        "description": "Get details of a specific counter.",
+        "security": [{ "BearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "counterID",
+            "in": "path",
+            "required": true,
+            "description": "Counter ID",
+            "schema": { "type": "string", "format": "uuid" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Counter details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": { "type": "boolean", "example": true },
+                    "counter": { "$ref": "#/components/schemas/Counter" }
+                  }
+                }
+              }
+            }
+          },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "404": { "$ref": "#/components/responses/NotFound" }
+        }
+      },
+      "put": {
+        "tags": ["Counters"],
+        "summary": "Update counter",
+        "description": "Update counter name, location, or webhook URL.",
+        "security": [{ "BearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "counterID",
+            "in": "path",
+            "required": true,
+            "description": "Counter ID",
+            "schema": { "type": "string", "format": "uuid" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/UpdateCounterRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Counter updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": { "type": "boolean", "example": true },
+                    "counter": { "$ref": "#/components/schemas/Counter" }
+                  }
+                }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/BadRequest" },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "404": { "$ref": "#/components/responses/NotFound" }
+        }
+      },
+      "delete": {
+        "tags": ["Counters"],
+        "summary": "Deactivate counter",
+        "description": "Deactivate a counter. The associated Keycloak client credentials are revoked and no new payment intents can be created for this counter.",
+        "security": [{ "BearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "counterID",
+            "in": "path",
+            "required": true,
+            "description": "Counter ID",
+            "schema": { "type": "string", "format": "uuid" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Counter deactivated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": { "type": "boolean", "example": true },
+                    "message": { "type": "string", "example": "Counter deactivated successfully" }
+                  }
+                }
+              }
+            }
+          },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "404": { "$ref": "#/components/responses/NotFound" }
+        }
+      }
+    },
+    "/merchant/api/v1/counters/{counterID}/rotate-secret": {
+      "post": {
+        "tags": ["Counters"],
+        "summary": "Rotate webhook secret",
+        "description": "Generate a new HMAC signing secret for the counter's webhook. The old secret is immediately invalidated — update your webhook handler before calling this.",
+        "security": [{ "BearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "counterID",
+            "in": "path",
+            "required": true,
+            "description": "Counter ID",
+            "schema": { "type": "string", "format": "uuid" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "New webhook secret generated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": { "type": "boolean", "example": true },
+                    "webhook_secret": {
+                      "type": "string",
+                      "description": "New HMAC-SHA256 signing secret (64 hex chars). Store securely — shown only once.",
+                      "example": "a3f8c2e1d4b7a9f0e2c5b8d1a4f7c0e3d6b9a2f5c8e1d4b7a0f3c6e9d2b5a8f1"
+                    },
+                    "note": { "type": "string", "example": "Update your webhook handler immediately — the old secret is no longer valid." }
+                  }
+                }
+              }
+            }
+          },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "404": { "$ref": "#/components/responses/NotFound" },
+          "500": { "$ref": "#/components/responses/InternalError" }
+        }
+      }
+    },
+    "/merchant/api/v1/transactions": {
+      "get": {
+        "tags": ["Admin"],
+        "summary": "Get merchant transaction history",
+        "description": "Retrieve ledger transactions for the authenticated merchant. Accessible to `merchant` role users (scoped to their own `merchant_id` from the JWT) and `admin` role users (who must supply `?merchant_id=` to specify which merchant). Proxies to the internal ledger service.",
+        "security": [{ "BearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Page number (default: 1)",
+            "schema": { "type": "integer", "minimum": 1, "default": 1 }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Items per page (default: 20, max: 100)",
+            "schema": { "type": "integer", "minimum": 1, "maximum": 100, "default": 20 }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Paginated transaction list",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": { "type": "boolean", "example": true },
+                    "merchant_id": { "type": "string", "format": "uuid", "example": "74815c83-e47b-4dc5-aefe-abe4484dd280" },
+                    "transactions": {
+                      "type": "array",
+                      "items": { "$ref": "#/components/schemas/LedgerTransaction" }
+                    },
+                    "page": { "type": "integer", "example": 1 },
+                    "limit": { "type": "integer", "example": 20 },
+                    "total": { "type": "integer", "example": 47 },
+                    "total_pages": { "type": "integer", "example": 3 }
+                  }
+                }
+              }
+            }
+          },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "403": {
+            "description": "Forbidden — platform admin must supply ?merchant_id= query param",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorResponse" },
+                "example": { "success": false, "error": "Merchant identity not found in token" }
+              }
+            }
+          },
+          "500": { "$ref": "#/components/responses/InternalError" }
+        }
+      }
+    },
+    "/merchant/api/v1/public/merchants": {
+      "get": {
+        "tags": ["Public"],
+        "summary": "List merchants",
+        "description": "Get a paginated list of all active merchants (public view — returns only ID and business name).",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "schema": { "type": "integer", "minimum": 1, "default": 1 }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": { "type": "integer", "minimum": 1, "maximum": 100, "default": 20 }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of merchants",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": { "type": "boolean", "example": true },
+                    "merchants": {
+                      "type": "array",
+                      "items": { "$ref": "#/components/schemas/MerchantPublic" }
+                    },
+                    "page": { "type": "integer", "example": 1 },
+                    "limit": { "type": "integer", "example": 20 },
+                    "total": { "type": "integer", "example": 5 },
+                    "total_pages": { "type": "integer", "example": 1 }
+                  }
+                }
+              }
+            }
+          },
+          "500": { "$ref": "#/components/responses/InternalError" }
+        }
+      }
+    },
+    "/merchant/api/v1/scan-payment": {
+      "post": {
+        "tags": ["Counters"],
+        "summary": "Initiate reverse QR payment (counter scan)",
+        "description": "Called by a POS terminal after scanning the user's QR code. Creates a payment intent with `status=pending_approval` targeted at the scanned user's wallet and publishes a `payment.approval_requested` NATS event so the user's mobile app can display the approval screen. **Requires a merchant JWT** (client credentials flow with the merchant's `client_id`/`client_secret`). `counter_id` is passed in the request body and validated against the DB to confirm it belongs to the authenticated merchant.",
+        "security": [{ "BearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/ScanPaymentRequest" },
+              "examples": {
+                "basic": {
+                  "summary": "Basic scan payment",
+                  "value": { "scan_token": "8566959d-f366-45d9-9e6e-241ba189988f", "counter_id": "c1d2e3f4-a5b6-7890-abcd-ef1234567890", "amount": 35.50, "currency": "USD", "description": "Lunch combo" }
+                },
+                "withReference": {
+                  "summary": "With merchant order reference",
+                  "value": { "scan_token": "8566959d-f366-45d9-9e6e-241ba189988f", "counter_id": "c1d2e3f4-a5b6-7890-abcd-ef1234567890", "amount": 120.00, "currency": "USD", "description": "Grocery order", "reference": "ORD-9001", "expires_in": 300 }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Payment intent created — awaiting user approval on mobile app",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": { "type": "boolean", "example": true },
+                    "payment_intent": { "$ref": "#/components/schemas/PaymentIntent" }
+                  }
+                }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/BadRequest" },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "500": { "$ref": "#/components/responses/InternalError" }
+        }
+      }
+    },
+    "/merchant/api/v1/public/payment-intents/{intentID}": {
+      "get": {
+        "tags": ["Public"],
+        "summary": "Get payment intent (public)",
+        "description": "Get payment intent details for QR code scan (no authentication required). Returns payment details for users who scan the QR code.",
+        "parameters": [
+          {
+            "name": "intentID",
+            "in": "path",
+            "required": true,
+            "description": "Payment intent ID from QR code",
+            "schema": { "type": "string", "format": "uuid" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Payment intent details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": { "type": "boolean", "example": true },
+                    "payment_intent": { "$ref": "#/components/schemas/PaymentIntent" }
+                  }
+                }
+              }
+            }
+          },
+          "404": { "$ref": "#/components/responses/NotFound" }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "BearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "description": "Keycloak JWT. Roles: `admin` (platform admin — can register merchants, act on behalf of any merchant), `merchant` (dashboard user — scoped to their own `merchant_id` via user attribute mapper), POS terminals use client credentials flow with `merchant_id` injected via protocol mapper."
+      }
+    },
+    "schemas": {
+      "PaymentIntent": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string", "format": "uuid", "example": "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11" },
+          "merchant_id": { "type": "string", "format": "uuid", "example": "74815c83-e47b-4dc5-aefe-abe4484dd280" },
+          "merchant_name": { "type": "string", "example": "Whole Foods Market" },
+          "amount": { "type": "number", "format": "double", "example": 99.99 },
+          "currency": { "type": "string", "example": "USD", "default": "USD" },
+          "description": { "type": "string", "example": "Coffee and pastry" },
+          "qr_code_url": { "type": "string", "description": "Base64-encoded QR code image (data URI)", "example": "data:image/png;base64,iVBORw0KGgo..." },
+          "qr_data": { "type": "string", "description": "Raw QR code payload JSON", "example": "{\"payment_intent_id\":\"abc123\",\"amount\":99.99,\"currency\":\"USD\",\"merchant_id\":\"...\",\"merchant_name\":\"Whole Foods Market\"}" },
+          "status": { "type": "string", "enum": ["pending", "pending_approval", "completed", "expired", "cancelled"], "example": "pending", "description": "`pending` — standard QR intent waiting for user scan. `pending_approval` — reverse QR intent created by counter, waiting for user to approve on mobile app." },
+          "target_wallet_id": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true,
+            "description": "For reverse QR intents (`pending_approval`): the wallet ID of the user whose QR was scanned. Null for standard (merchant-created) QR intents.",
+            "example": "8566959d-f366-45d9-9e6e-241ba189988f"
+          },
+          "completed_by": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true,
+            "description": "Wallet user_id of the customer who completed the payment. Present only when status is `completed`.",
+            "example": "d9f3a2b1-c4e5-6789-abcd-ef0123456789"
+          },
+          "refund_status": {
+            "type": "string",
+            "enum": ["pending", "completed"],
+            "nullable": true,
+            "description": "Refund state. `null` means no refund has been issued. `pending` means refund was submitted to ledger. `completed` means ledger has settled the refund.",
+            "example": "pending"
+          },
+          "refund_ledger_tx_id": {
+            "type": "string",
+            "nullable": true,
+            "description": "Idempotency key / ledger transaction reference for the refund transaction.",
+            "example": "f47ac10b-58cc-4372-a567-0e02b2c3d479"
+          },
+          "counter_id": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true,
+            "description": "POS terminal that created this intent.",
+            "example": "c1d2e3f4-a5b6-7890-abcd-ef1234567890"
+          },
+          "reference": {
+            "type": "string",
+            "nullable": true,
+            "description": "Merchant's own order or invoice ID.",
+            "example": "ORD-12345"
+          },
+          "callback_url": {
+            "type": "string",
+            "format": "uri",
+            "nullable": true,
+            "description": "Per-intent webhook override URL.",
+            "example": "https://shop.example.com/orders/ORD-12345/payment-callback"
+          },
+          "metadata": {
+            "type": "object",
+            "nullable": true,
+            "additionalProperties": true,
+            "description": "Arbitrary JSON metadata set by the merchant at creation time.",
+            "example": { "customer_email": "alice@example.com", "cart_id": "cart-abc123" }
+          },
+          "expires_at": { "type": "string", "format": "date-time", "example": "2026-02-24T14:30:00Z" },
+          "created_at": { "type": "string", "format": "date-time", "example": "2026-02-24T14:00:00Z" },
+          "updated_at": { "type": "string", "format": "date-time", "example": "2026-02-24T14:00:00Z" }
+        },
+        "required": ["id", "merchant_id", "amount", "currency", "status", "expires_at"]
+      },
+      "RefundResponse": {
+        "type": "object",
+        "properties": {
+          "success": { "type": "boolean", "example": true },
+          "refund_initiated": { "type": "boolean", "example": true },
+          "message": { "type": "string", "example": "Refund initiated successfully. Funds will be returned to the customer's wallet." },
+          "payment_intent": { "$ref": "#/components/schemas/PaymentIntent" }
+        },
+        "required": ["success", "refund_initiated", "message", "payment_intent"]
+      },
+      "CreatePaymentIntentRequest": {
+        "type": "object",
+        "required": ["amount"],
+        "properties": {
+          "amount": { "type": "number", "format": "double", "example": 99.99, "minimum": 0.01 },
+          "currency": { "type": "string", "example": "USD", "default": "USD" },
+          "description": { "type": "string", "example": "Coffee and pastry" },
+          "expires_in": { "type": "integer", "description": "Seconds until expiration (default: 1800)", "example": 1800, "default": 1800, "minimum": 60 },
+          "counter_id": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true,
+            "description": "POS terminal (counter) that created this intent. When set, the counter's webhook_url is used for delivery if no callback_url is provided.",
+            "example": "c1d2e3f4-a5b6-7890-abcd-ef1234567890"
+          },
+          "reference": {
+            "type": "string",
+            "nullable": true,
+            "description": "Merchant's own order or invoice ID. Stored for correlation and returned in webhook payload.",
+            "example": "ORD-12345"
+          },
+          "callback_url": {
+            "type": "string",
+            "format": "uri",
+            "nullable": true,
+            "description": "Per-intent webhook override. Takes priority over counter and merchant-level webhooks. Useful for ecommerce flows where each order has its own callback.",
+            "example": "https://shop.example.com/orders/ORD-12345/payment-callback"
+          },
+          "metadata": {
+            "type": "object",
+            "nullable": true,
+            "additionalProperties": true,
+            "description": "Arbitrary JSON object stored with the intent and forwarded verbatim in the webhook payload.",
+            "example": { "customer_email": "alice@example.com", "cart_id": "cart-abc123" }
+          }
+        }
+      },
+      "ScanPaymentRequest": {
+        "type": "object",
+        "required": ["scan_token", "counter_id", "amount"],
+        "description": "Request body for counter-initiated (reverse QR) payment. `counter_id` is required and validated server-side to confirm it belongs to the authenticated merchant.",
+        "properties": {
+          "scan_token": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Token read from the user's QR code (currently equals the user's wallet ID).",
+            "example": "8566959d-f366-45d9-9e6e-241ba189988f"
+          },
+          "counter_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "POS terminal identity — must belong to the authenticated merchant.",
+            "example": "c1d2e3f4-a5b6-7890-abcd-ef1234567890"
+          },
+          "amount": { "type": "number", "format": "double", "example": 35.50, "minimum": 0.01 },
+          "currency": { "type": "string", "example": "USD", "default": "USD" },
+          "description": { "type": "string", "example": "Lunch combo" },
+          "expires_in": { "type": "integer", "description": "Seconds until approval expires (default: 300 — 5 minutes)", "example": 300, "default": 300, "minimum": 30 },
+          "reference": {
+            "type": "string",
+            "nullable": true,
+            "description": "Merchant's own order or invoice ID.",
+            "example": "ORD-9001"
+          },
+          "callback_url": {
+            "type": "string",
+            "format": "uri",
+            "nullable": true,
+            "description": "Per-intent webhook override URL.",
+            "example": "https://pos.example.com/webhooks/ORD-9001"
+          },
+          "metadata": {
+            "type": "object",
+            "nullable": true,
+            "additionalProperties": true,
+            "description": "Arbitrary JSON metadata forwarded verbatim in the webhook payload.",
+            "example": { "table": "T12", "cashier": "Jane" }
+          }
+        }
+      },
+      "Counter": {
+        "type": "object",
+        "description": "A POS terminal belonging to a merchant",
+        "properties": {
+          "id": { "type": "string", "format": "uuid", "example": "c1d2e3f4-a5b6-7890-abcd-ef1234567890" },
+          "merchant_id": { "type": "string", "format": "uuid", "example": "74815c83-e47b-4dc5-aefe-abe4484dd280" },
+          "name": { "type": "string", "example": "Counter 1" },
+          "location": { "type": "string", "example": "Floor 2, Register 3" },
+          "keycloak_client_id": { "type": "string", "description": "Keycloak client ID for this counter (for reference; secret not shown)", "example": "counter-c1d2e3f4-a5b6-7890-abcd-ef1234567890" },
+          "webhook_url": { "type": "string", "format": "uri", "example": "https://pos.example.com/webhooks/payments" },
+          "status": { "type": "string", "enum": ["active", "inactive"], "example": "active" },
+          "created_at": { "type": "string", "format": "date-time" },
+          "updated_at": { "type": "string", "format": "date-time" }
+        },
+        "required": ["id", "merchant_id", "name", "status"]
+      },
+      "CreateCounterRequest": {
+        "type": "object",
+        "required": ["name"],
+        "properties": {
+          "name": { "type": "string", "example": "Counter 1" },
+          "location": { "type": "string", "example": "Floor 2, Register 3" },
+          "webhook_url": { "type": "string", "format": "uri", "example": "https://pos.example.com/webhooks/payments" }
+        }
+      },
+      "UpdateCounterRequest": {
+        "type": "object",
+        "description": "All fields are optional — only provided fields are updated",
+        "properties": {
+          "name": { "type": "string", "example": "Counter 1 (updated)" },
+          "location": { "type": "string", "example": "Ground Floor, Register 1" },
+          "webhook_url": { "type": "string", "format": "uri", "example": "https://pos.example.com/webhooks/v2/payments" }
+        }
+      },
+      "CreateCounterResponse": {
+        "type": "object",
+        "properties": {
+          "success": { "type": "boolean", "example": true },
+          "counter": { "$ref": "#/components/schemas/Counter" },
+          "client_id": {
+            "type": "string",
+            "description": "Keycloak client ID for POS client_credentials flow",
+            "example": "counter-c1d2e3f4-a5b6-7890-abcd-ef1234567890"
+          },
+          "client_secret": {
+            "type": "string",
+            "description": "Keycloak client secret — shown only on creation, store securely",
+            "example": "abc123secretvalue"
+          },
+          "webhook_secret": {
+            "type": "string",
+            "description": "HMAC-SHA256 secret for verifying webhook signatures — shown only on creation, store securely",
+            "example": "a3f8c2e1d4b7a9f0e2c5b8d1a4f7c0e3d6b9a2f5c8e1d4b7a0f3c6e9d2b5a8f1"
+          },
+          "note": { "type": "string", "example": "Store client_secret and webhook_secret securely — they are only shown once." }
+        }
+      },
+      "LedgerTransaction": {
+        "type": "object",
+        "description": "A ledger transaction record from the ledger service",
+        "properties": {
+          "transaction_id": { "type": "string", "format": "uuid", "example": "550e8400-e29b-41d4-a716-446655440000" },
+          "transaction_type": {
+            "type": "string",
+            "enum": ["deposit", "withdrawal", "transfer", "payment", "refund", "fee", "reversal"],
+            "example": "payment",
+            "description": "Merchant accounts receive `payment` type transactions when customers pay"
+          },
+          "status": {
+            "type": "string",
+            "enum": ["pending", "processing", "completed", "failed", "reversed"],
+            "example": "completed"
+          },
+          "amount": { "type": "string", "example": "49.99", "description": "Decimal amount as string for precision" },
+          "currency": { "type": "string", "example": "USD" },
+          "from_account_id": { "type": "string", "format": "uuid", "description": "Source wallet (user who paid)" },
+          "to_account_id": { "type": "string", "format": "uuid", "description": "Destination account (merchant wallet)" },
+          "description": { "type": "string", "example": "Payment to Whole Foods Market" },
+          "metadata": {
+            "type": "object",
+            "description": "Arbitrary metadata, e.g. `payment_intent_id`",
+            "example": { "payment_intent_id": "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11" }
+          },
+          "created_at": { "type": "string", "format": "date-time" },
+          "completed_at": { "type": "string", "format": "date-time" }
+        }
+      },
+      "MerchantPublic": {
+        "type": "object",
+        "description": "Public merchant information",
+        "properties": {
+          "id": { "type": "string", "format": "uuid", "example": "74815c83-e47b-4dc5-aefe-abe4484dd280" },
+          "business_name": { "type": "string", "example": "Whole Foods Market" }
+        },
+        "required": ["id", "business_name"]
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "properties": {
+          "success": { "type": "boolean", "example": false },
+          "error": { "type": "string", "example": "Invalid request body" }
+        },
+        "required": ["success", "error"]
+      },
+      "RegisterMerchantRequest": {
+        "type": "object",
+        "required": ["email", "business_name"],
+        "properties": {
+          "email": { "type": "string", "format": "email", "example": "shop@example.com" },
+          "business_name": { "type": "string", "example": "My Shop" }
+        }
+      },
+      "RegisterResult": {
+        "type": "object",
+        "properties": {
+          "success": { "type": "boolean", "example": true },
+          "merchant_id": { "type": "string", "format": "uuid", "example": "a1b2c3d4-e5f6-7890-abcd-ef1234567890" },
+          "client_id": { "type": "string", "example": "merchant-a1b2c3d4-e5f6-7890-abcd-ef1234567890" },
+          "client_secret": { "type": "string", "example": "s3cr3t-shown-once", "description": "Shown only once — store securely." },
+          "note": { "type": "string", "example": "Store client_secret securely — it will not be shown again." }
+        }
+      }
+    },
+    "responses": {
+      "BadRequest": {
+        "description": "Bad request — invalid input",
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/ErrorResponse" },
+            "example": { "success": false, "error": "Amount must be greater than 0" }
+          }
+        }
+      },
+      "Unauthorized": {
+        "description": "Unauthorized — missing or invalid JWT",
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/ErrorResponse" },
+            "example": { "success": false, "error": "Unauthorized" }
+          }
+        }
+      },
+      "NotFound": {
+        "description": "Resource not found",
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/ErrorResponse" },
+            "example": { "success": false, "error": "Payment intent not found" }
+          }
+        }
+      },
+      "InternalError": {
+        "description": "Internal server error",
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/ErrorResponse" },
+            "example": { "success": false, "error": "Failed to create payment intent" }
+          }
+        }
+      }
+    }
+  }
+}
