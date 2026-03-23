@@ -1,0 +1,107 @@
+---
+title: FEX Developer Portal
+description: Wallet-based payment infrastructure for POS, web, and mobile integrations.
+---
+
+import { Card, CardGroup } from '@/components/Card'
+import { Steps } from '@/components/Steps'
+
+# Build wallet-based payments with FEX
+
+Accept payments across **POS, web, and mobile** using QR flows, wallet approvals, refunds, and real-time webhooks.
+
+<Card title="What is FEX?" icon="wallet">
+  FEX is an alternative payment method that lets customers pay directly from funded wallet balances, without relying on traditional card rails.
+</Card>
+
+<CardGroup cols={3}>
+  <Card title="Merchant-initiated QR" icon="qr-code" href="/accept-payments">
+    Create a payment intent, display a QR code, and let the customer confirm in their wallet app.
+  </Card>
+  <Card title="Reverse QR" icon="scan-line" href="/accept-payments">
+    Scan the customer’s wallet QR at the counter and trigger an approval request.
+  </Card>
+  <Card title="Webhooks" icon="webhook" href="/webhooks">
+    Get real-time payment status updates so your backend stays in sync.
+  </Card>
+</CardGroup>
+
+## Start here
+
+<Steps>
+  <Step title="Get your credentials">
+    Receive your `merchant_id`, `client_id`, and `client_secret` from the platform administrator and store them securely.
+  </Step>
+  <Step title="Generate an access token">
+    Authenticate using the OAuth2 client credentials flow before calling any merchant API.
+  </Step>
+  <Step title="Create your first payment">
+    Start with the Standard QR flow to create a payment intent and display a QR code to the customer.
+  </Step>
+  <Step title="Handle payment confirmation">
+    Verify incoming webhooks and mark orders as paid when you receive `payment.completed`.
+  </Step>
+</Steps>
+
+## Integration guides
+
+<CardGroup cols={2}>
+  <Card title="Get Started" icon="rocket" href="/getting-started">
+    Set up credentials, generate tokens, and make your first successful request.
+  </Card>
+  <Card title="Standard QR Flow" icon="qr-code" href="/standard-qr-tutorial">
+    End-to-end tutorial with curl, Node.js, and Python examples.
+  </Card>
+  <Card title="Webhooks" icon="bell" href="/webhooks">
+    Verify signatures, process events, and build reliable payment handling.
+  </Card>
+  <Card title="Refunds & Cancellations" icon="rotate-ccw" href="/refunds">
+    Cancel pending intents and refund completed payments to the customer wallet.
+  </Card>
+</CardGroup>
+
+## What you can build
+
+<CardGroup cols={3}>
+  <Card title="POS payments" icon="store">
+    Use merchant-generated QR or reverse QR for in-person checkout at the counter.
+  </Card>
+  <Card title="Web checkout" icon="monitor">
+    Display QR on desktop checkout and let customers approve on mobile.
+  </Card>
+  <Card title="Mobile experiences" icon="smartphone">
+    Extend wallet-based payments into app and mobile commerce flows.
+  </Card>
+</CardGroup>
+
+## Platform highlights
+
+- **Wallet-based payments** for direct, card-free checkout
+- **POS and ecommerce support** across in-person and online flows
+- **Real-time webhooks** for payment lifecycle events
+- **Refund workflows** for post-payment operations
+- **Secure authentication** using OAuth2 and signed webhook delivery
+
+## Core concepts
+
+### Wallets
+
+Customers fund their FEX wallet using supported bank transfer or cash-based funding methods, then use those balances to pay merchants.
+
+### Allocations
+
+FEX uses an allocation model to organize funds into spending buckets. Allocations can include constraints such as merchant restrictions or expiration dates, and eligible payments draw from the most restrictive allocation first.
+
+## Build confidently
+
+Use the guides in this portal to:
+
+- authenticate securely
+- create payment intents
+- display QR codes
+- receive confirmation via webhook
+- manage transactions and refunds
+
+<Card title="Ready to integrate?" icon="arrow-right" href="/getting-started">
+  Start with the quickstart guide and launch your first FEX payment flow.
+</Card>
