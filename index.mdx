@@ -4,7 +4,7 @@ description: Wallet-based payment infrastructure for POS, web, and mobile integr
 ---
 
 import { Card, CardGroup } from '@/components/Card'
-import { Steps } from '@/components/Steps'
+import { Steps, Step } from '@/components/Steps'
 
 # Build wallet-based payments with FEX
 
@@ -14,23 +14,11 @@ Accept payments across **POS, web, and mobile** using QR flows, wallet approvals
   FEX is an alternative payment method that lets customers pay directly from funded wallet balances, without relying on traditional card rails.
 </Card>
 
-<CardGroup cols={3}>
-  <Card title="Merchant-initiated QR" icon="qr-code" href="/accept-payments">
-    Create a payment intent, display a QR code, and let the customer confirm in their wallet app.
-  </Card>
-  <Card title="Reverse QR" icon="scan-line" href="/accept-payments">
-    Scan the customer’s wallet QR at the counter and trigger an approval request.
-  </Card>
-  <Card title="Webhooks" icon="webhook" href="/webhooks">
-    Get real-time payment status updates so your backend stays in sync.
-  </Card>
-</CardGroup>
-
 ## Start here
 
 <Steps>
   <Step title="Get your credentials">
-    Receive your `merchant_id`, `client_id`, and `client_secret` from the platform administrator and store them securely.
+    Receive your `merchant_id`, `client_id`, and `client_secret` from your platform administrator and store them securely.
   </Step>
   <Step title="Generate an access token">
     Authenticate using the OAuth2 client credentials flow before calling any merchant API.
@@ -43,20 +31,52 @@ Accept payments across **POS, web, and mobile** using QR flows, wallet approvals
   </Step>
 </Steps>
 
+## Payment flows
+
+<CardGroup cols={2}>
+  <Card title="Standard QR" icon="qr-code" href="/standard-qr-flow">
+    Create a payment intent, display a QR code, and let the customer confirm in their wallet app.
+  </Card>
+  <Card title="Reverse QR" icon="scan-line" href="/reverse-qr-flow-counter-scan">
+    Scan the customer’s wallet QR at the counter and trigger an approval request.
+  </Card>
+</CardGroup>
+
 ## Integration guides
 
 <CardGroup cols={2}>
-  <Card title="Get Started" icon="rocket" href="/getting-started">
-    Set up credentials, generate tokens, and make your first successful request.
+  <Card title="Overview" icon="compass" href="/overview">
+    Learn the two supported payment flows and choose the right checkout experience.
   </Card>
-  <Card title="Standard QR Flow" icon="qr-code" href="/standard-qr-tutorial">
-    End-to-end tutorial with curl, Node.js, and Python examples.
+  <Card title="Getting Your Credentials" icon="key" href="/getting-your-credentials">
+    Set up merchant credentials and store secrets securely.
   </Card>
-  <Card title="Webhooks" icon="bell" href="/webhooks">
-    Verify signatures, process events, and build reliable payment handling.
+  <Card title="Generating an Access Token" icon="shield-check" href="/generating-an-access-token">
+    Authenticate with OAuth2 and implement safe token refresh logic.
   </Card>
-  <Card title="Refunds & Cancellations" icon="rotate-ccw" href="/refunds">
-    Cancel pending intents and refund completed payments to the customer wallet.
+  <Card title="Standard QR Flow" icon="qr-code" href="/standard-qr-flow">
+    Build the merchant-initiated QR flow end to end.
+  </Card>
+  <Card title="Reverse QR Flow" icon="scan-line" href="/reverse-qr-flow-counter-scan">
+    Build the counter-scan flow where the customer presents their wallet QR.
+  </Card>
+  <Card title="Webhooks" icon="webhook" href="/webhooks">
+    Verify signatures and handle payment lifecycle events reliably.
+  </Card>
+  <Card title="Cancellations & Refunds" icon="rotate-ccw" href="/cancellations-and-refunds">
+    Cancel pending intents and refund completed payments.
+  </Card>
+  <Card title="Transaction History" icon="receipt" href="/transaction-history">
+    Retrieve paginated merchant transaction history for reporting and reconciliation.
+  </Card>
+  <Card title="Counter Management" icon="store" href="/counter-management">
+    Register terminals, manage counters, and rotate webhook secrets.
+  </Card>
+  <Card title="Error Reference" icon="alert-circle" href="/error-reference">
+    Understand common API errors and recommended retry behavior.
+  </Card>
+  <Card title="Quick-Start Checklist" icon="check-circle" href="/quick-start-checklist">
+    Validate your setup before going live.
   </Card>
 </CardGroup>
 
@@ -76,7 +96,7 @@ Accept payments across **POS, web, and mobile** using QR flows, wallet approvals
 
 ## Platform highlights
 
-- **Wallet-based payments** for direct, card-free checkout
+- **Wallet-based payments** for direct, card-free transactions
 - **POS and ecommerce support** across in-person and online flows
 - **Real-time webhooks** for payment lifecycle events
 - **Refund workflows** for post-payment operations
@@ -102,6 +122,6 @@ Use the guides in this portal to:
 - receive confirmation via webhook
 - manage transactions and refunds
 
-<Card title="Ready to integrate?" icon="arrow-right" href="/getting-started">
-  Start with the quickstart guide and launch your first FEX payment flow.
+<Card title="Ready to integrate?" icon="arrow-right" href="/getting-your-credentials">
+  Start with credentials setup and launch your first FEX payment flow.
 </Card>
