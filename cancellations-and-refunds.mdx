@@ -1,0 +1,37 @@
+---
+title: Cancellations & Refunds
+description: Cancel pending intents and refund completed payments.
+---
+
+# Cancellations & Refunds
+
+### Cancel a Pending Intent
+
+**`POST /merchant/api/v1/payment-intents/{id}/cancel`**
+
+Only intents in `pending` status can be cancelled. Returns `200` on success.
+
+---
+
+### Issue a Refund
+
+**`POST /merchant/api/v1/payment-intents/{id}/refund`**
+
+Only intents in `completed` status can be refunded. The full amount is returned to the customer's wallet.
+
+**Response:**
+```json
+{
+  "success": true,
+  "refund_initiated": true,
+  "message": "Refund initiated successfully. Funds will be returned to the customer's wallet.",
+  "payment_intent": {
+    "id": "pi_xxxx",
+    "status": "refunded",
+    "refund_status": "initiated",
+    "refund_ledger_tx_id": "ltx_zzzz"
+  }
+}
+```
+
+---

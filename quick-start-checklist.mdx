@@ -1,0 +1,34 @@
+---
+title: Quick-Start Checklist
+description: Pre-launch checklist for FEX merchant integrations.
+---
+
+# Quick-Start Checklist
+
+Work through this list in order before going live.
+
+**Credentials & Setup**
+- [ ] Received `merchant_id`, `client_id`, and `client_secret` from platform admin
+- [ ] Stored `client_secret` in a secrets manager (not in source code or environment variables)
+- [ ] Tested token generation via the client credentials flow
+
+**Terminal Registration**
+- [ ] Created at least one counter (POS terminal) via `POST /merchant/api/v1/counters`
+- [ ] Saved the counter's `webhook_secret` in your secrets manager
+
+**Backend Integration**
+- [ ] Implemented token refresh logic (refresh at least 30 s before expiry)
+- [ ] Implemented webhook endpoint with HMAC-SHA256 signature verification
+- [ ] Implemented retry/backoff logic for `5xx` responses
+
+**End-to-End Testing**
+- [ ] Tested Standard QR flow end-to-end in sandbox
+- [ ] Tested Reverse QR flow end-to-end in sandbox
+- [ ] Verified webhook delivery and signature validation
+
+**Go Live**
+- [ ] Contact platform admin to activate your live environment
+
+---
+
+*For sandbox access, base URLs, or credential issues, contact your platform administrator.*

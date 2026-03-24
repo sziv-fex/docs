@@ -1,0 +1,19 @@
+---
+title: Counter Management
+description: Create and manage POS counters and rotate webhook secrets.
+---
+
+# Counter Management
+
+| Action | Method | Endpoint |
+|--------|--------|----------|
+| Create terminal | `POST` | `/merchant/api/v1/counters` |
+| List terminals | `GET` | `/merchant/api/v1/counters` |
+| Get terminal | `GET` | `/merchant/api/v1/counters/{id}` |
+| Update terminal | `PUT` | `/merchant/api/v1/counters/{id}` |
+| Deactivate terminal | `DELETE` | `/merchant/api/v1/counters/{id}` |
+| Rotate webhook secret | `POST` | `/merchant/api/v1/counters/{id}/rotate-secret` |
+
+> **Rotate the webhook secret** if it is ever exposed or compromised. All subsequent webhooks will use the new secret immediately.
+
+---

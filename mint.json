@@ -1,0 +1,21 @@
+{
+  "$schema": "https://mintlify.com/schema.json",
+  "navigation": [
+    {
+      "group": "Overview",
+      "pages": ["overview"]
+    },
+    {
+      "group": "Setup",
+      "pages": ["getting-your-credentials", "generating-an-access-token"]
+    },
+    {
+      "group": "Payments",
+      "pages": ["standard-qr-flow", "reverse-qr-flow-counter-scan", "cancellations-and-refunds"]
+    },
+    {
+      "group": "Core",
+      "pages": ["webhooks", "transaction-history", "counter-management", "error-reference", "quick-start-checklist"]
+    }
+  ]
+}

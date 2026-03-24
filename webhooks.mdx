@@ -1,69 +1,75 @@
 ---
-title: "Webhooks"
+title: Webhooks
+description: Webhook events, signatures, and delivery behavior.
 ---
 
-FEX sends webhooks when the payment state changes.
+# Webhooks
 
-## 📡 Example Payload
+The platform sends a signed HTTP POST to your `callback_url` whenever a payment changes state.
+
+### Payload
 
 ```json
 {
   "event": "payment.completed",
   "payment_intent_id": "pi_xxxx",
+  "merchant_id": "a1b2c3d4-...",
   "amount": 29.99,
-  "status": "completed"
+  "currency": "USD",
+  "status": "completed",
+  "completed_at": "2025-01-01T12:31:55Z",
+  "reference": "ORDER-1042",
+  "metadata": { "table": "5", "cashier": "Maria" }
 }
 ```
 
----
+### Webhook Events
 
-## 🔁 Events
-
-| Event | Description |
-| --- | --- |
-| payment.completed | Payment successful |
-| payment.expired | Payment not completed |
-| payment.refunded | Refund issued |
+| Event | Trigger |
+|-------|---------|
+| `payment.completed` | Customer payment confirmed |
+| `payment.expired` | QR or approval window elapsed without payment |
+| `payment.refunded` | Merchant issued a refund |
 
 ---
 
-## 🔐 Verify Signature
+### Verifying the Signature
 
-Header:
+Every webhook delivery includes an `X-Webhook-Signature` header — an **HMAC-SHA256 hex digest** of the raw request body, signed with your counter's `webhook_secret`.
 
-```text
-X-Webhook-Signature
-```
+> **Always use constant-time comparison** (`hmac.compare_digest` / `timingSafeEqual`) to prevent timing attacks. Never use a simple string equality check.
 
-### Node.js Example
-
-```javascript
-crypto.createHmac('sha256', secret)
-```
-
-### Python Example
-
+**Python:**
 ```python
-hmac.new(secret.encode(), body, hashlib.sha256)
+import hmac, hashlib
+
+def verify_webhook(body: bytes, signature: str, secret: str) -> bool:
+    expected = hmac.new(
+        secret.encode(),
+        body,
+        hashlib.sha256
+    ).hexdigest()
+    return hmac.compare_digest(expected, signature)
 ```
 
+**Node.js:**
+```javascript
+const crypto = require('crypto');
+
+function verifyWebhook(body, signature, secret) {
+  const expected = crypto
+    .createHmac('sha256', secret)
+    .update(body)
+    .digest('hex');
+  return crypto.timingSafeEqual(
+    Buffer.from(expected),
+    Buffer.from(signature)
+  );
+}
+```
+
+### Acknowledging Delivery
+
+Respond with **HTTP 200** to acknowledge receipt. Deliveries returning a non-2xx status are retried **up to 5 times** with exponential backoff.
+
 ---
-
-## ⚠️ Important
-
-- Always verify signature
-- Use **constant-time comparison**
-- Retry-safe (idempotent handling)
-
----
-
-## 🔁 Retries
-
-- Up to 5 attempts
-- Exponential backoff
-
----
-
-## ✅ Best Practice
-
-Only mark payment as complete after webhook.

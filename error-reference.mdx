@@ -1,0 +1,29 @@
+---
+title: Error Reference
+description: HTTP error formats and common causes.
+---
+
+# Error Reference
+
+All error responses follow this shape:
+
+```json
+{
+  "success": false,
+  "error": "human-readable message"
+}
+```
+
+| HTTP Status | Meaning | Common cause |
+|-------------|---------|--------------|
+| `400` | Bad request | Missing or invalid field in request body |
+| `401` | Unauthorized | Missing, expired, or malformed access token |
+| `403` | Forbidden | Token does not have permission for this action |
+| `404` | Not found | Resource ID does not exist |
+| `409` | Conflict | e.g. refund already issued for this intent |
+| `422` | Unprocessable | e.g. no customer wallet on file to refund |
+| `500` | Platform error | Transient server fault — retry with exponential backoff |
+
+> **On `5xx` errors:** implement retry logic with exponential backoff and jitter. Do not retry `4xx` errors without first fixing the request.
+
+---

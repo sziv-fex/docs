@@ -1,0 +1,89 @@
+---
+title: Generating an Access Token
+description: Generate and refresh OAuth2 access tokens for FEX API calls.
+---
+
+# Generating an Access Token
+
+All API calls require a **Bearer token** obtained via the OAuth 2.0 client credentials flow. Tokens expire after **5 minutes** — implement automatic refresh in your backend.
+
+### Request
+
+```bash
+curl -X POST https://auth.fex.example.com/realms/payment-platform/protocol/openid-connect/token \
+  -H "Content-Type: application/x-www-form-urlencoded" \
+  -d "grant_type=client_credentials" \
+  -d "client_id=merchant-a1b2c3d4-..." \
+  -d "client_secret=xxxxxxxxxxxxxxxx"
+```
+
+### Response
+
+```json
+{
+  "access_token": "eyJhbGciOiJSUzI1NiIs...",
+  "expires_in": 300,
+  "token_type": "Bearer"
+}
+```
+
+### Token Caching (Recommended Pattern)
+
+Request a new token before each API call, or cache and refresh proactively using the pattern below:
+
+```python
+if token is None or token_expires_at < now() + 30s:
+    token = fetch_new_token(client_id, client_secret)
+    token_expires_at = now() + token.expires_in
+```
+
+> **Important:** Always refresh at least 30 seconds before expiry to avoid race conditions near the 5-minute boundary.
+
+<br>
+
+<!-- DIAGRAM: Token Flow -->
+<p align="center">
+<svg width="100%" viewBox="0 0 680 160" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <marker id="arr2" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </marker>
+  </defs>
+
+  <!-- POS Backend -->
+  <rect x="40" y="58" width="130" height="44" rx="8" fill="#EEF2FF" stroke="#6366F1" stroke-width="1"/>
+  <text x="105" y="76" text-anchor="middle" font-family="system-ui,sans-serif" font-size="12" font-weight="600" fill="#3730A3">POS Backend</text>
+  <text x="105" y="91" text-anchor="middle" font-family="system-ui,sans-serif" font-size="11" fill="#4338CA">Your server</text>
+
+  <!-- Arrow to Auth -->
+  <line x1="170" y1="80" x2="232" y2="80" stroke="#6366F1" stroke-width="1.5" marker-end="url(#arr2)"/>
+  <text x="201" y="72" text-anchor="middle" font-family="system-ui,sans-serif" font-size="10" fill="#6366F1">credentials</text>
+
+  <!-- Auth Server -->
+  <rect x="234" y="58" width="130" height="44" rx="8" fill="#FFF7ED" stroke="#F97316" stroke-width="1"/>
+  <text x="299" y="76" text-anchor="middle" font-family="system-ui,sans-serif" font-size="12" font-weight="600" fill="#9A3412">Auth Server</text>
+  <text x="299" y="91" text-anchor="middle" font-family="system-ui,sans-serif" font-size="11" fill="#C2410C">Keycloak / OAuth2</text>
+
+  <!-- Arrow back (token) -->
+  <line x1="363" y1="80" x2="425" y2="80" stroke="#22C55E" stroke-width="1.5" marker-end="url(#arr2)"/>
+  <text x="394" y="72" text-anchor="middle" font-family="system-ui,sans-serif" font-size="10" fill="#22C55E">access token</text>
+
+  <!-- Token cache -->
+  <rect x="428" y="58" width="130" height="44" rx="8" fill="#F0FDF4" stroke="#22C55E" stroke-width="1"/>
+  <text x="493" y="76" text-anchor="middle" font-family="system-ui,sans-serif" font-size="12" font-weight="600" fill="#166534">POS Backend</text>
+  <text x="493" y="91" text-anchor="middle" font-family="system-ui,sans-serif" font-size="11" fill="#15803D">Caches token</text>
+
+  <!-- Arrow to FEX API -->
+  <line x1="558" y1="80" x2="618" y2="80" stroke="#6366F1" stroke-width="1.5" marker-end="url(#arr2)"/>
+  <text x="588" y="72" text-anchor="middle" font-family="system-ui,sans-serif" font-size="10" fill="#6366F1">API calls</text>
+
+  <!-- FEX API -->
+  <rect x="620" y="58" width="40" height="44" rx="8" fill="#F8FAFC" stroke="#CBD5E1" stroke-width="1"/>
+  <text x="640" y="84" text-anchor="middle" font-family="system-ui,sans-serif" font-size="10" font-weight="600" fill="#475569">FEX</text>
+
+  <!-- Expiry note -->
+  <text x="340" y="130" text-anchor="middle" font-family="system-ui,sans-serif" font-size="11" fill="#94A3B8">Token valid for 5 minutes — refresh at least 30 s before expiry</text>
+</svg>
+</p>
+
+---
