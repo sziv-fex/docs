@@ -20,25 +20,19 @@
             ]
           },
           {
-            "group": "Technical guide",
+            "group": "Technical Guide",
             "pages": [
-              "accept-payments",
-              "webhooks",
-              "refunds",
-              "transactions",
-              "counters",
-              "errors",
-              "testing"
-            ]
-          },
-          {
-            "group": "Tech 2",
-            "pages": [
-              "fex-integration-guide",
-              "fex-integration-guide1",
               "overview",
               "getting-your-credentials",
-              "generating-an-access-token"
+              "generating-an-access-token",
+              "standard-qr-flow",
+              "reverse-qr-flow-counter-scan",
+              "webhooks",
+              "cancellations-and-refunds",
+              "transaction-history",
+              "counter-management",
+              "error-reference",
+              "quick-start-checklist"
             ]
           }
         ]

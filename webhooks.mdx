@@ -1,9 +1,7 @@
 ---
-title: Webhooks
-description: Webhook events, signatures, and delivery behavior.
+title: "Webhooks"
+description: "Webhook events, signatures, and delivery behavior."
 ---
-
-# Webhooks
 
 The platform sends a signed HTTP POST to your `callback_url` whenever a payment changes state.
 
@@ -26,7 +24,7 @@ The platform sends a signed HTTP POST to your `callback_url` whenever a payment 
 ### Webhook Events
 
 | Event | Trigger |
-|-------|---------|
+| --- | --- |
 | `payment.completed` | Customer payment confirmed |
 | `payment.expired` | QR or approval window elapsed without payment |
 | `payment.refunded` | Merchant issued a refund |
@@ -40,6 +38,7 @@ Every webhook delivery includes an `X-Webhook-Signature` header — an **HMAC-SH
 > **Always use constant-time comparison** (`hmac.compare_digest` / `timingSafeEqual`) to prevent timing attacks. Never use a simple string equality check.
 
 **Python:**
+
 ```python
 import hmac, hashlib
 
@@ -53,6 +52,7 @@ def verify_webhook(body: bytes, signature: str, secret: str) -> bool:
 ```
 
 **Node.js:**
+
 ```javascript
 const crypto = require('crypto');
 

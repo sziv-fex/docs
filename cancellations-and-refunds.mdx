@@ -1,9 +1,7 @@
 ---
-title: Cancellations & Refunds
-description: Cancel pending intents and refund completed payments.
+title: "Cancellations & Refunds"
+description: "Cancel pending intents and refund completed payments."
 ---
-
-# Cancellations & Refunds
 
 ### Cancel a Pending Intent
 
@@ -20,6 +18,7 @@ Only intents in `pending` status can be cancelled. Returns `200` on success.
 Only intents in `completed` status can be refunded. The full amount is returned to the customer's wallet.
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -33,5 +32,3 @@ Only intents in `completed` status can be refunded. The full amount is returned 
   }
 }
 ```
-
----
