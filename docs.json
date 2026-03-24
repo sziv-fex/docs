@@ -34,13 +34,8 @@
           {
             "group": "Tech 2",
             "pages": [
-              "fex-integration-guide"
-            ]
-          },
-          {
-            "group": "Step by Step Integration",
-            "pages": [
-              "standard-qr-tutorial"
+              "fex-integration-guide",
+              "fex-integration-guide1"
             ]
           }
         ]
