@@ -1,0 +1,448 @@
+# FEX Payment Platform | Merchant & POS Integration Guide
+
+For sandbox access, base URLs, or credential issues, contact your platform administrator.
+
+## Table of Contents
+
+1. Overview
+2. Getting Your Credentials
+3. Generating an Access Token
+4. Standard QR Flow
+5. Reverse QR Flow (Counter Scan)
+6. Webhooks
+7. Cancellations & Refunds
+8. Transaction History
+9. Counter Management
+10. Error Reference
+11. Quick-Start Checklist
+
+## 1. Overview
+
+The FEX Payment Platform supports two payment flows. Choose the one that fits your checkout experience:
+
+| Flow | Initiated by | How it works |
+|---|---|---|
+| Standard QR | Merchant / POS terminal | Terminal generates a QR code; customer scans with their wallet app |
+| Reverse QR | POS terminal (counter scan) | Customer shows their wallet QR; terminal scans it and sends a push approval to the customer |
+
+## 2. Getting Your Credentials
+
+This step is completed once per merchant. A platform administrator registers your merchant account and provides API credentials.
+
+After registration you will receive a JSON payload containing three values:
+
+```json
+{
+  "merchant_id":   "a1b2c3d4-...",
+  "client_id":     "merchant-a1b2c3d4-...",
+  "client_secret": "xxxxxxxxxxxxxxxx",
+  "note": "Store client_secret securely — it will not be shown again."
+}
+```
+
+> Warning: Store client_secret immediately — it cannot be retrieved again. If lost, you must request a new one from your platform administrator.
+
+> Best practice: Store client_secret in a dedicated secrets manager (e.g. AWS Secrets Manager, HashiCorp Vault, 1Password) rather than in environment variables or source code.
+
+## 3. Generating an Access Token
+
+All API calls require a Bearer token obtained via the OAuth 2.0 client credentials flow. Tokens expire after 5 minutes — implement automatic refresh in your backend.
+
+### Request
+
+```bash
+curl -X POST https://auth.fex.example.com/realms/payment-platform/protocol/openid-connect/token \
+  -H "Content-Type: application/x-www-form-urlencoded" \
+  -d "grant_type=client_credentials" \
+  -d "client_id=merchant-a1b2c3d4-..." \
+  -d "client_secret=xxxxxxxxxxxxxxxx"
+```
+
+### Response
+
+```json
+{
+  "access_token": "eyJhbGciOiJSUzI1NiIs...",
+  "expires_in": 300,
+  "token_type": "Bearer"
+}
+```
+
+### Token Caching (Recommended Pattern)
+
+Request a new token before each API call, or cache and refresh proactively:
+
+```python
+if token is None or token_expires_at < now() + 30s:
+    token = fetch_new_token(client_id, client_secret)
+    token_expires_at = now() + token.expires_in
+```
+
+> Warning: Always refresh at least 30 seconds before expiry to avoid race conditions near the 5-minute boundary.
+
+## 4. Standard QR Flow
+
+The POS terminal creates a payment intent, displays the resulting QR code, and waits for the customer to scan and confirm via their wallet app.
+
+### Step 1 — Create a Payment Intent
+
+`POST /merchant/api/v1/payment-intents`
+
+### Headers
+
+```text
+Authorization: Bearer {access_token}
+Content-Type: application/json
+```
+
+### Request Body
+
+```json
+{
+  "amount": 29.99,
+  "currency": "USD",
+  "description": "Coffee x2",
+  "expires_in": 300,
+  "reference": "ORDER-1042",
+  "callback_url": "https://your-backend.example.com/webhooks/fex",
+  "metadata": { "table": "5", "cashier": "Maria" }
+}
+```
+
+### Request Fields
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| amount | float | ✅ Yes | Payment amount (must be positive) |
+| currency | string | — | ISO 4217 code. Default: USD |
+| description | string | — | Shown to customer in their wallet app |
+| expires_in | integer | — | Seconds until QR expires. Default: 1800 |
+| reference | string | — | Your internal order or invoice ID |
+| callback_url | string | — | URL to receive payment webhook events |
+| counter_id | string | — | Links intent to a specific POS terminal |
+| metadata | object | — | Arbitrary key-value pairs, echoed in webhooks |
+
+### Response — 201 Created
+
+```json
+{
+  "success": true,
+  "payment_intent": {
+    "id": "pi_xxxx",
+    "merchant_id": "a1b2c3d4-...",
+    "merchant_name": "My Shop",
+    "amount": 29.99,
+    "currency": "USD",
+    "status": "pending",
+    "qr_code_url": "data:image/png;base64,...",
+    "qr_data": "fex://pay?intent=pi_xxxx&...",
+    "expires_at": "2025-01-01T12:35:00Z",
+    "reference": "ORDER-1042",
+    "created_at": "2025-01-01T12:30:00Z"
+  }
+}
+```
+
+> Info: Displaying the QR code: use qr_code_url directly as an `<img>` src — it is a base64-encoded PNG. Alternatively encode qr_data with your preferred QR library.
+
+### Step 2 — Poll for Status (Optional)
+
+`GET /merchant/api/v1/payment-intents/{id}`
+
+Poll every 2–3 seconds while the QR is displayed. Stop when status reaches a terminal state.
+
+### Response
+
+```json
+{
+  "success": true,
+  "payment_intent": {
+    "id": "pi_xxxx",
+    "status": "completed",
+    "completed_at": "2025-01-01T12:31:55Z"
+  }
+}
+```
+
+### Payment Intent Statuses
+
+| Status | Meaning |
+|---|---|
+| pending | Waiting for customer to scan and pay |
+| completed | Payment received |
+| cancelled | Cancelled by merchant |
+| expired | QR code lifetime elapsed |
+| refunded | Full refund issued |
+
+> Info: Webhooks are the primary notification mechanism. Polling is a recommended fallback, not a replacement.
+
+## 5. Reverse QR Flow (Counter Scan)
+
+The POS terminal scans the customer's QR code. The customer receives a push notification in their wallet app and taps to approve.
+
+### Prerequisites — Register a Counter (POS Terminal)
+
+Each physical terminal should be registered once. This enables per-terminal reporting and ties scan-payment transactions to a specific terminal.
+
+`POST /merchant/api/v1/counters`
+
+```json
+{
+  "name": "Till 1",
+  "location": "Main entrance"
+}
+```
+
+### Response
+
+```json
+{
+  "success": true,
+  "counter": {
+    "id": "ctr_xxxx",
+    "merchant_id": "a1b2c3d4-...",
+    "name": "Till 1",
+    "location": "Main entrance",
+    "status": "active",
+    "webhook_secret": "whsec_xxxxxxxx"
+  }
+}
+```
+
+> Warning: Save the webhook_secret — you will use it to verify incoming webhooks for this terminal. Treat it like a password.
+
+### Initiate a Scan Payment
+
+`POST /merchant/api/v1/scan-payment`
+
+```json
+{
+  "scan_token":    "{value decoded from customer's wallet QR}",
+  "counter_id":   "ctr_xxxx",
+  "amount":       49.50,
+  "currency":     "USD",
+  "description":  "Lunch combo",
+  "expires_in":   120,
+  "reference":    "ORDER-2087",
+  "callback_url": "https://your-backend.example.com/webhooks/fex"
+}
+```
+
+### Request Fields
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| scan_token | string | ✅ Yes | Value decoded from the customer's wallet QR |
+| counter_id | string | ✅ Yes | ID of the scanning terminal |
+| amount | float | ✅ Yes | Charge amount |
+| currency | string | — | Default: USD |
+| expires_in | integer | — | Seconds for customer to approve. Default: 300 |
+| description | string | — | Shown to customer in push notification |
+| reference | string | — | Your internal order or invoice ID |
+| callback_url | string | — | URL to receive the payment.completed webhook |
+
+### Response — 201 Created
+
+```json
+{
+  "success": true,
+  "payment_intent": {
+    "id": "pi_yyyy",
+    "status": "pending_approval",
+    "amount": 49.50,
+    "expires_at": "2025-01-01T12:37:00Z"
+  }
+}
+```
+
+The customer receives a push notification immediately. Their approval fires a payment.completed webhook to your callback_url.
+
+## 6. Webhooks
+
+The platform sends a signed HTTP POST to your callback_url whenever a payment changes state.
+
+### Payload
+
+```json
+{
+  "event": "payment.completed",
+  "payment_intent_id": "pi_xxxx",
+  "merchant_id": "a1b2c3d4-...",
+  "amount": 29.99,
+  "currency": "USD",
+  "status": "completed",
+  "completed_at": "2025-01-01T12:31:55Z",
+  "reference": "ORDER-1042",
+  "metadata": { "table": "5", "cashier": "Maria" }
+}
+```
+
+### Webhook Events
+
+| Event | Trigger |
+|---|---|
+| payment.completed | Customer payment confirmed |
+| payment.expired | QR or approval window elapsed without payment |
+| payment.refunded | Merchant issued a refund |
+
+### Verifying the Signature
+
+Every webhook delivery includes an X-Webhook-Signature header — an HMAC-SHA256 hex digest of the raw request body, signed with your counter's webhook_secret.
+
+> Warning: Always use constant-time comparison (hmac.compare_digest / timingSafeEqual) to prevent timing attacks. Never use simple string equality.
+
+### Python
+
+```python
+import hmac, hashlib
+ 
+def verify_webhook(body: bytes, signature: str, secret: str) -> bool:
+    expected = hmac.new(
+        secret.encode(),
+        body,
+        hashlib.sha256
+    ).hexdigest()
+    return hmac.compare_digest(expected, signature)
+```
+
+### Node.js
+
+```javascript
+const crypto = require('crypto');
+ 
+function verifyWebhook(body, signature, secret) {
+  const expected = crypto
+    .createHmac('sha256', secret)
+    .update(body)
+    .digest('hex');
+  return crypto.timingSafeEqual(
+    Buffer.from(expected),
+    Buffer.from(signature)
+  );
+}
+```
+
+### Acknowledging Delivery
+
+Respond with HTTP 200 to acknowledge receipt. Deliveries returning a non-2xx status are retried up to 5 times with exponential backoff.
+
+## 7. Cancellations & Refunds
+
+### Cancel a Pending Intent
+
+`POST /merchant/api/v1/payment-intents/{id}/cancel`
+
+Only intents in pending status can be cancelled. Returns 200 on success.
+
+### Issue a Refund
+
+`POST /merchant/api/v1/payment-intents/{id}/refund`
+
+Only intents in completed status can be refunded. The full amount is returned to the customer's wallet.
+
+### Response
+
+```json
+{
+  "success": true,
+  "refund_initiated": true,
+  "message": "Refund initiated successfully. Funds will be returned to the customer's wallet.",
+  "payment_intent": {
+    "id": "pi_xxxx",
+    "status": "refunded",
+    "refund_status": "initiated",
+    "refund_ledger_tx_id": "ltx_zzzz"
+  }
+}
+```
+
+## 8. Transaction History
+
+`GET /merchant/api/v1/transactions?page=1&limit=20`
+
+Returns paginated ledger transactions for your merchant wallet.
+
+```json
+{
+  "success": true,
+  "merchant_id": "a1b2c3d4-...",
+  "transactions": [
+    {
+      "id": "ltx_xxxx",
+      "type": "payment",
+      "amount": 29.99,
+      "currency": "USD",
+      "direction": "credit",
+      "reference": "ORDER-1042",
+      "created_at": "2025-01-01T12:31:55Z"
+    }
+  ],
+  "page": 1, "limit": 20, "total": 142, "total_pages": 8
+}
+```
+
+## 9. Counter Management
+
+Use the following endpoints to manage your POS terminals:
+
+| Action | Method | Endpoint |
+|---|---|---|
+| Create terminal | POST | /merchant/api/v1/counters |
+| List terminals | GET | /merchant/api/v1/counters |
+| Get terminal | GET | /merchant/api/v1/counters/{id} |
+| Update terminal | PUT | /merchant/api/v1/counters/{id} |
+| Deactivate terminal | DELETE | /merchant/api/v1/counters/{id} |
+| Rotate webhook secret | POST | /merchant/api/v1/counters/{id}/rotate-secret |
+
+> Warning: Rotate the webhook secret immediately if it is ever exposed or compromised. All subsequent webhooks will use the new secret.
+
+## 10. Error Reference
+
+All error responses follow this shape:
+
+```json
+{  "success": false,  "error": "human-readable message"  }
+```
+
+| HTTP Status | Meaning | Common cause |
+|---|---|---|
+| 400 | Bad request | Missing or invalid field in request body |
+| 401 | Unauthorized | Missing, expired, or malformed access token |
+| 403 | Forbidden | Token does not have permission for this action |
+| 404 | Not found | Resource ID does not exist |
+| 409 | Conflict | e.g. refund already issued for this intent |
+| 422 | Unprocessable | e.g. no customer wallet on file to refund |
+| 500 | Platform error | Transient server fault — retry with exponential backoff |
+
+> Info: On 5xx errors: implement retry logic with exponential backoff and jitter. Do not retry 4xx errors without first fixing the request.
+
+## 11. Quick-Start Checklist
+
+Work through this list in order before going live.
+
+### Credentials & Setup
+
+- [ ] Received merchant_id, client_id, and client_secret from platform admin
+- [ ] Stored client_secret in a secrets manager (not in source code or env variables)
+- [ ] Tested token generation via the client credentials flow
+
+### Terminal Registration
+
+- [ ] Created at least one counter (POS terminal) via POST /merchant/api/v1/counters
+- [ ] Saved the counter's webhook_secret in your secrets manager
+
+### Backend Integration
+
+- [ ] Implemented token refresh logic (refresh at least 30 s before expiry)
+- [ ] Implemented webhook endpoint with HMAC-SHA256 signature verification
+- [ ] Implemented retry/backoff logic for 5xx responses
+
+### End-to-End Testing
+
+- [ ] Tested Standard QR flow end-to-end in sandbox
+- [ ] Tested Reverse QR flow end-to-end in sandbox
+- [ ] Verified webhook delivery and signature validation
+
+### Go Live
+
+- [ ] Contact platform admin to activate your live environment
