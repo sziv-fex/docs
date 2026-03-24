@@ -1,13 +1,12 @@
 {
   "$schema": "https://mintlify.com/docs.json",
   "theme": "mint",
-  "name": "Mint Starter Kit",
+  "name": "Fex Payments API ",
   "colors": {
     "primary": "#16A34A",
     "light": "#07C983",
     "dark": "#15803D"
   },
-  "favicon": "/favicon.svg",
   "navigation": {
     "tabs": [
       {
@@ -48,6 +47,7 @@
       },
       {
         "tab": "API reference",
+        "openapi": "swagger.json",
         "groups": [
           {
             "group": "API documentation",
@@ -57,15 +57,12 @@
       }
     ]
   },
-  "logo": {
-    "light": "/logo/logo.jpeg",
-    "dark": "/logo/dark.svg"
-  },
+  "logo": "/logo/Logo.jpeg",
   "navbar": {
     "links": [
       {
         "label": "Support",
-        "href": "mailto:hi@mintlify.com"
+        "href": "mailto:support@fexpayments.com"
       }
     ],
     "primary": {
@@ -86,15 +83,11 @@
      "vscode"
    ]
   },
-  "footer": {
-    "socials": {
-      "x": "https://x.com/mintlify",
-      "github": "https://github.com/mintlify",
-      "linkedin": "https://linkedin.com/company/mintlify"
-    }
-  },
   "api": {
     "openapi": "/swagger.json"
+  },
+  "appearance": {
+    "default": "system"
   }
 
 }
