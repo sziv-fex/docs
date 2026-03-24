@@ -28,7 +28,8 @@
               "transactions",
               "counters",
               "errors",
-              "testing"
+              "testing",
+              "overview"
             ]
           },
           {
