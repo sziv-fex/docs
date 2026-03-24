@@ -26,6 +26,7 @@
               "getting-your-credentials",
               "generating-an-access-token",
               "standard-qr-flow",
+              "standard-qr-flow-web-button",
               "reverse-qr-flow-counter-scan",
               "webhooks",
               "cancellations-and-refunds",
