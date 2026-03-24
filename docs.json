@@ -36,7 +36,9 @@
             "pages": [
               "fex-integration-guide",
               "fex-integration-guide1",
-              "overview"
+              "overview",
+              "getting-your-credentials",
+              "generating-an-access-token"
             ]
           }
         ]
