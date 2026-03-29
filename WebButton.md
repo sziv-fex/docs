@@ -1,4 +1,8 @@
-# Fex Pay Widget (Web Button) — `fex-pay.js`
+---
+title: "Standard QR Flow - WebButton"
+---
+
+# Standard QR Flow - Web Button
 
 An embeddable, self-contained JavaScript payment button that lets any merchant website accept Fex wallet payments with a few lines of code.
 
@@ -6,7 +10,7 @@ An embeddable, self-contained JavaScript payment button that lets any merchant w
 
 ## How It Works
 
-```
+```text
 Merchant site          Fex Pay Widget              Fex Backend            Customer's Fex App
 ──────────────         ─────────────────           ────────────           ──────────────────
 FexPay.pay()    ──▶   POST /payment-intents  ──▶  Create intent
@@ -80,7 +84,7 @@ The script is a self-contained IIFE with **no external dependencies**. It expose
 Must be called **once** before any `pay()` call. Typically called on page load.
 
 | Parameter | Type | Required | Description |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | `config.merchantId` | `string` | Yes | Your Fex merchant UUID |
 | `config.baseUrl` | `string` | No | Override the API base URL (default: production endpoint) |
 
@@ -100,7 +104,7 @@ Throws a synchronous `Error` if `merchantId` is missing.
 Opens the payment modal, creates a payment intent, and starts polling for completion. Returns a `Promise` that resolves with the created `PaymentIntent` object once the modal appears (not when payment completes — use `onSuccess` for that).
 
 | Parameter | Type | Required | Description |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | `params.amount` | `number` | Yes | Amount to charge. Must be a positive number |
 | `params.currency` | `string` | Yes | ISO 4217 currency code, e.g. `"USD"`, `"EUR"`, `"GBP"` |
 | `params.description` | `string` | No | Payment description shown to the customer in the modal |
@@ -137,7 +141,7 @@ onError: function (err) {
 ```
 
 | Error code | Cause |
-|---|---|
+| --- | --- |
 | `VALIDATION` | Invalid `params` passed to `pay()` (e.g. missing amount) |
 | `API_ERROR` | Network or backend error when creating/fetching the payment intent |
 | `TIMEOUT` | Customer did not complete payment within 5 minutes |
@@ -179,7 +183,7 @@ FexPay.pay({
 Tells the widget that a payment has been confirmed — typically called from your own webhook handler after the Fex backend notifies your server. Stops polling immediately, fetches the latest intent data, and shows the success screen.
 
 | Parameter | Type | Required | Description |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | `paymentIntentId` | `string` | No | The payment intent UUID to confirm. If omitted, confirms the current active session |
 
 ```js
@@ -194,11 +198,11 @@ If no active session exists, or the ID does not match the active session, the ca
 
 ## Webhook Integration
 
-Using `callbackUrl` + `FexPay.confirm()` is the most reliable way to detect payment completion — it avoids waiting for the next 5-second poll cycle.
+Using `callbackUrl` \+ `FexPay.confirm()` is the most reliable way to detect payment completion — it avoids waiting for the next 5-second poll cycle.
 
 ### Recommended flow
 
-```
+```text
 1. Customer clicks Pay                     → FexPay.pay({ callbackUrl: '...' })
 2. Backend receives payment confirmation   → POST https://yourshop.com/api/fex/webhook
 3. Your server validates the webhook
@@ -256,7 +260,7 @@ sse.addEventListener('payment_confirmed', function (event) {
 When no webhook is used, the widget polls automatically:
 
 | Setting | Value |
-|---|---|
+| --- | --- |
 | First poll delay | 1 second after QR is shown |
 | Poll interval | 5 seconds |
 | Maximum polls | 120 (≈ 5 minutes total) |
@@ -268,7 +272,7 @@ When no webhook is used, the widget polls automatically:
 ## Modal States
 
 | State | Trigger |
-|---|---|
+| --- | --- |
 | **Loading** | While `POST /payment-intents` is in progress |
 | **QR code** | Payment intent created successfully |
 | **Success** | Payment completed (`onSuccess` also fires) |
@@ -290,12 +294,12 @@ The success screen auto-closes after **3 seconds**.
 ## Browser Support
 
 | Browser | Support |
-|---|---|
-| Chrome / Edge 80+ | Full |
-| Firefox 75+ | Full |
-| Safari 14+ | Full |
-| iOS Safari 14+ | Full |
-| Android Chrome 80+ | Full |
+| --- | --- |
+| Chrome / Edge 80\+ | Full |
+| Firefox 75\+ | Full |
+| Safari 14\+ | Full |
+| iOS Safari 14\+ | Full |
+| Android Chrome 80\+ | Full |
 
 Requires: `fetch`, `Promise`, `Shadow DOM`, `Intl.NumberFormat` — all standard in modern browsers. No polyfills needed.
 
@@ -318,6 +322,6 @@ The demo page lets you configure Merchant ID, amount, currency, and description,
 ## File Reference
 
 | File | Description |
-|---|---|
+| --- | --- |
 | `fex-pay.js` | The widget — copy this to your project or CDN |
 | `demo.html` | Interactive demo page |

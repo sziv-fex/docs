@@ -26,15 +26,14 @@
               "getting-your-credentials",
               "generating-an-access-token",
               "standard-qr-flow",
-              "standard-qr-flow-web-button",
+              "WebButton",
               "reverse-qr-flow-counter-scan",
               "webhooks",
               "cancellations-and-refunds",
               "transaction-history",
               "counter-management",
               "error-reference",
-              "quick-start-checklist",
-              "WebButton"
+              "quick-start-checklist"
             ]
           }
         ]
