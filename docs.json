@@ -33,7 +33,8 @@
               "transaction-history",
               "counter-management",
               "error-reference",
-              "quick-start-checklist"
+              "quick-start-checklist",
+              "WebButton"
             ]
           }
         ]
