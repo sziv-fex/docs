@@ -8,7 +8,7 @@ All API calls require a **Bearer token** obtained via the OAuth 2.0 client crede
 ### Request
 
 ```bash
-curl -X POST https://auth.fex.example.com/realms/payment-platform/protocol/openid-connect/token \
+curl -X POST https://auth-sandbox.fexpayments.com/realms/payment-platform/protocol/openid-connect/token \
   -H "Content-Type: application/x-www-form-urlencoded" \
   -d "grant_type=client_credentials" \
   -d "client_id=merchant-a1b2c3d4-..." \
